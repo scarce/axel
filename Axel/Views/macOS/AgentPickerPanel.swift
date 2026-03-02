@@ -465,7 +465,7 @@ struct AgentPickerPanel: View {
                 HStack(spacing: 5) {
                     Image(systemName: useWorktree ? "checkmark.square.fill" : "square")
                         .font(.caption)
-                        .foregroundStyle(useWorktree ? .accent : .secondary)
+                        .foregroundStyle(useWorktree ? Color.accentColor : .secondary)
                     Text("Worktree")
                         .font(.caption)
                         .foregroundStyle(useWorktree ? .primary : .secondary)
