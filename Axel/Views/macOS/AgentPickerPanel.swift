@@ -379,12 +379,21 @@ struct AgentPickerPanel: View {
             }
             return .ignored
         }
-        .onKeyPress(.return) {
+        .onKeyPress(keys: [.return], phases: .down) { keyPress in
+            let shiftHeld = keyPress.modifiers.contains(.shift)
+            let worktree = shiftHeld ? !useWorktree : useWorktree
             if !isWorktreeFieldFocused || !newWorktreeBranch.isEmpty {
-                confirmSelection()
+                confirmSelection(withWorktree: worktree)
                 return .handled
             }
             return .ignored
+        }
+        .onKeyPress(keys: ["w"], phases: .down) { _ in
+            guard !isWorktreeFieldFocused else { return .ignored }
+            withAnimation(.easeInOut(duration: 0.15)) {
+                useWorktree.toggle()
+            }
+            return .handled
         }
         .onKeyPress(.escape) {
             dismiss()
