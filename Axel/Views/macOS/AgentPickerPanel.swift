@@ -704,19 +704,26 @@ struct AgentPickerPanel: View {
         }
     }
 
-    private func confirmSelection() {
-        // Determine branch from left pane selection (or inline field when no worktree support)
+    private func confirmSelection(withWorktree: Bool? = nil) {
+        let shouldUseWorktree = withWorktree ?? useWorktree
+
+        // Determine branch from left pane selection (or auto-generate when worktree toggle is on)
         let branch: String? = {
             if let item = selectedItem {
                 switch item {
-                case .mainWorktree: return nil
+                case .mainWorktree:
+                    return shouldUseWorktree ? generateTempBranchName() : nil
                 case .newWorktree:
                     let b = newWorktreeBranch.trimmingCharacters(in: .whitespacesAndNewlines)
                     return b.isEmpty ? nil : b
-                case .worktree(let info): return info.displayName
+                case .worktree(let info):
+                    return info.displayName
                 }
             } else {
-                // No worktree support — use inline branch field if filled
+                // No worktree support — auto-generate if toggle is on, else use inline field
+                if shouldUseWorktree {
+                    return generateTempBranchName()
+                }
                 let b = newWorktreeBranch.trimmingCharacters(in: .whitespacesAndNewlines)
                 return b.isEmpty ? nil : b
             }
