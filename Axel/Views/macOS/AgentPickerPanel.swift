@@ -302,48 +302,35 @@ struct AgentPickerPanel: View {
     }
 
     var body: some View {
-        Group {
-            if isLoading {
-                HStack { Spacer(); ProgressView(); Spacer() }
-            } else if hasWorktreeSupport {
-                HStack(spacing: 0) {
-                    // Left pane: slot-machine picker (worktrees)
-                    slotPickerPane
-                        .frame(width: 280)
+        VStack(spacing: 0) {
+            Group {
+                if isLoading {
+                    HStack { Spacer(); ProgressView(); Spacer() }
+                } else if hasWorktreeSupport {
+                    HStack(spacing: 0) {
+                        // Left pane: slot-machine picker (worktrees)
+                        slotPickerPane
+                            .frame(width: 280)
 
-                    Divider().opacity(0.3)
+                        Divider().opacity(0.3)
 
-                    // Right pane: layout or session detail
-                    rightPane
-                        .frame(maxWidth: .infinity)
-                }
-            } else {
-                // No worktree support: right pane only + optional branch input
-                VStack(spacing: 0) {
+                        // Right pane: layout or session detail
+                        rightPane
+                            .frame(maxWidth: .infinity)
+                    }
+                } else {
+                    // No worktree support: right pane only
                     rightPane
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                    Divider().opacity(0.3)
-
-                    // Optional worktree creation
-                    HStack(spacing: 8) {
-                        Image(systemName: "arrow.triangle.branch")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        TextField("branch name (optional)", text: $newWorktreeBranch)
-                            .textFieldStyle(.plain)
-                            .font(.callout)
-                            .focused($isWorktreeFieldFocused)
-                            .onSubmit {
-                                confirmSelection()
-                            }
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
                 }
             }
+            .frame(maxHeight: .infinity)
+
+            Divider().opacity(0.3)
+
+            worktreeToggleBar
         }
-        .frame(width: 760, height: 340)
+        .frame(width: 760, height: 360)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .presentationBackground(.clear)
