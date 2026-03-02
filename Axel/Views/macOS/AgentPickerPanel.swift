@@ -453,6 +453,50 @@ struct AgentPickerPanel: View {
         .padding(.horizontal, 8)
     }
 
+    // MARK: - Worktree Toggle Bar
+
+    private var worktreeToggleBar: some View {
+        HStack(spacing: 6) {
+            Button {
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    useWorktree.toggle()
+                }
+            } label: {
+                HStack(spacing: 5) {
+                    Image(systemName: useWorktree ? "checkmark.square.fill" : "square")
+                        .font(.caption)
+                        .foregroundStyle(useWorktree ? .accent : .secondary)
+                    Text("Worktree")
+                        .font(.caption)
+                        .foregroundStyle(useWorktree ? .primary : .secondary)
+                }
+            }
+            .buttonStyle(.plain)
+
+            Text("W")
+                .font(.system(size: 9, weight: .medium, design: .monospaced))
+                .foregroundStyle(.tertiary)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 1)
+                .background(.quaternary.opacity(0.5))
+                .clipShape(RoundedRectangle(cornerRadius: 3))
+
+            Spacer()
+
+            Group {
+                if useWorktree {
+                    Text("⏎ worktree · ⇧⏎ main")
+                } else {
+                    Text("⏎ main · ⇧⏎ worktree")
+                }
+            }
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+    }
+
     // MARK: - Right Pane
 
     private var rightPane: some View {
