@@ -248,6 +248,12 @@ struct AgentPickerPanel: View {
         !worktrees.isEmpty
     }
 
+    /// Generate a temporary worktree branch name like `axel-tmp/A1B2C3D4`
+    private func generateTempBranchName() -> String {
+        let hex = (0..<4).map { _ in String(format: "%02X", Int.random(in: 0...255)) }.joined()
+        return "axel-tmp/\(hex)"
+    }
+
     /// Build picker items: new worktree, main, existing worktrees, then sessions
     private func buildPickerItems() -> [AgentPickerItem] {
         guard hasWorktreeSupport else { return [] }
