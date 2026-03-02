@@ -229,6 +229,7 @@ struct AgentPickerPanel: View {
     @State private var newWorktreeBranch: String = ""
     @State private var worktrees: [WorktreeInfo] = []
     @State private var isLoading = true
+    @State private var useWorktree: Bool = true
     @FocusState private var isFocused: Bool
     @FocusState private var isWorktreeFieldFocused: Bool
 
