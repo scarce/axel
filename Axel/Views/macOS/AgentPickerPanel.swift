@@ -210,6 +210,10 @@ struct HorizontalSlotPickerView<Item: Identifiable, Content: View>: View {
 /// Unified panel for Cmd+T (new terminal) and Cmd+R (assign task).
 /// Left pane: slot-machine picker with worktrees + sessions.
 /// Right pane: layout picker (for new) or session detail (for existing).
+///
+/// Worktree behavior:
+/// - Cmd+T (no task): launches on the selected worktree/main directly. No auto-worktree.
+/// - Cmd+R (with task): always auto-creates a tmp worktree (axel-tmp/*) for task isolation.
 struct AgentPickerPanel: View {
     let workspaceId: UUID?
     let workspacePath: String?
@@ -229,7 +233,6 @@ struct AgentPickerPanel: View {
     @State private var newWorktreeBranch: String = ""
     @State private var worktrees: [WorktreeInfo] = []
     @State private var isLoading = true
-    @State private var useWorktree: Bool = true
     @FocusState private var isFocused: Bool
     @FocusState private var isWorktreeFieldFocused: Bool
 
@@ -328,7 +331,7 @@ struct AgentPickerPanel: View {
 
             Divider().opacity(0.3)
 
-            worktreeToggleBar
+            actionHintBar
         }
         .frame(width: 760, height: 360)
         .background(.ultraThinMaterial)
@@ -379,21 +382,12 @@ struct AgentPickerPanel: View {
             }
             return .ignored
         }
-        .onKeyPress(keys: [.return], phases: .down) { keyPress in
-            let shiftHeld = keyPress.modifiers.contains(.shift)
-            let worktree = shiftHeld ? !useWorktree : useWorktree
+        .onKeyPress(keys: [.return], phases: .down) { _ in
             if !isWorktreeFieldFocused || !newWorktreeBranch.isEmpty {
-                confirmSelection(withWorktree: worktree)
+                confirmSelection()
                 return .handled
             }
             return .ignored
-        }
-        .onKeyPress(keys: ["w"], phases: .down) { _ in
-            guard !isWorktreeFieldFocused else { return .ignored }
-            withAnimation(.easeInOut(duration: 0.15)) {
-                useWorktree.toggle()
-            }
-            return .handled
         }
         .onKeyPress(.escape) {
             dismiss()
@@ -453,45 +447,14 @@ struct AgentPickerPanel: View {
         .padding(.horizontal, 8)
     }
 
-    // MARK: - Worktree Toggle Bar
+    // MARK: - Action Hint Bar
 
-    private var worktreeToggleBar: some View {
+    private var actionHintBar: some View {
         HStack(spacing: 6) {
-            Button {
-                withAnimation(.easeInOut(duration: 0.15)) {
-                    useWorktree.toggle()
-                }
-            } label: {
-                HStack(spacing: 5) {
-                    Image(systemName: useWorktree ? "checkmark.square.fill" : "square")
-                        .font(.caption)
-                        .foregroundStyle(useWorktree ? Color.accentColor : .secondary)
-                    Text("Worktree")
-                        .font(.caption)
-                        .foregroundStyle(useWorktree ? .primary : .secondary)
-                }
-            }
-            .buttonStyle(.plain)
-
-            Text("W")
-                .font(.system(size: 9, weight: .medium, design: .monospaced))
-                .foregroundStyle(.tertiary)
-                .padding(.horizontal, 4)
-                .padding(.vertical, 1)
-                .background(.quaternary.opacity(0.5))
-                .clipShape(RoundedRectangle(cornerRadius: 3))
-
             Spacer()
-
-            Group {
-                if useWorktree {
-                    Text("⏎ worktree · ⇧⏎ main")
-                } else {
-                    Text("⏎ main · ⇧⏎ worktree")
-                }
-            }
-            .font(.caption2)
-            .foregroundStyle(.tertiary)
+            Text(task != nil ? "⏎ launch on new worktree" : "⏎ launch")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
@@ -704,33 +667,44 @@ struct AgentPickerPanel: View {
         }
     }
 
-    private func confirmSelection(withWorktree: Bool? = nil) {
-        let shouldUseWorktree = withWorktree ?? useWorktree
-
-        // Determine branch from left pane selection (or auto-generate when worktree toggle is on)
+    private func confirmSelection() {
+        // Determine branch based on mode:
+        // - With task (Cmd+R): always auto-create a tmp worktree for isolation
+        // - Without task (Cmd+T): use exactly what the user selected
         let branch: String? = {
+            if task != nil {
+                // Task mode: always create a tmp worktree
+                if let item = selectedItem {
+                    switch item {
+                    case .mainWorktree:
+                        return generateTempBranchName()
+                    case .newWorktree:
+                        let b = newWorktreeBranch.trimmingCharacters(in: .whitespacesAndNewlines)
+                        return b.isEmpty ? generateTempBranchName() : b
+                    case .worktree:
+                        return generateTempBranchName()
+                    }
+                }
+                return generateTempBranchName()
+            }
+
+            // No task: use the selected worktree directly, no auto-creation
             if let item = selectedItem {
                 switch item {
                 case .mainWorktree:
-                    return shouldUseWorktree ? generateTempBranchName() : nil
+                    return nil
                 case .newWorktree:
                     let b = newWorktreeBranch.trimmingCharacters(in: .whitespacesAndNewlines)
                     return b.isEmpty ? nil : b
                 case .worktree(let info):
                     return info.displayName
                 }
-            } else {
-                // No worktree support — auto-generate if toggle is on, else use inline field
-                if shouldUseWorktree {
-                    return generateTempBranchName()
-                }
-                let b = newWorktreeBranch.trimmingCharacters(in: .whitespacesAndNewlines)
-                return b.isEmpty ? nil : b
             }
+            return nil
         }()
 
-        // New worktree requires non-empty branch name
-        if let item = selectedItem, case .newWorktree = item {
+        // New worktree requires non-empty branch name (only relevant without task)
+        if task == nil, let item = selectedItem, case .newWorktree = item {
             guard branch != nil else { return }
         }
 
