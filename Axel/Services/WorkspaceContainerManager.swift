@@ -198,8 +198,11 @@ final class WorkspaceContainerManager {
             }
         }
 
-        // Create "Initialize workspace" task if no AXEL.md exists
-        try createInitializeWorkspaceTaskIfNeeded(workspace, container: container)
+        // Ensure git repository and create auto-tasks if needed
+        if let path = workspace.path {
+            ensureGitRepository(at: path)
+        }
+        try createAutoTasksIfNeeded(workspace, container: container)
     }
 
     /// Get workspace from workspace-specific container
@@ -218,9 +221,40 @@ final class WorkspaceContainerManager {
         return FileManager.default.fileExists(atPath: manifestPath)
     }
 
-    /// Create the default "Initialize workspace" task when no AXEL.md exists
-    /// This task provides instructions for the AI agent to analyze the repo and create an appropriate AXEL.md
-    func createInitializeWorkspaceTaskIfNeeded(_ workspace: Workspace, container: ModelContainer) throws {
+    /// Run `git init` if the directory isn't already a git repository
+    private func ensureGitRepository(at path: String) {
+        let gitDir = (path as NSString).appendingPathComponent(".git")
+        guard !FileManager.default.fileExists(atPath: gitDir) else { return }
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        process.arguments = ["init", path]
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
+        try? process.run()
+        process.waitUntilExit()
+        if process.terminationStatus == 0 {
+            print("[WorkspaceContainerManager] Ran git init at: \(path)")
+        }
+    }
+
+    /// Check whether a directory has no visible (non-hidden) files
+    private func isBlankDirectory(at path: String) -> Bool {
+        let url = URL(fileURLWithPath: path)
+        guard let contents = try? FileManager.default.contentsOfDirectory(
+            at: url,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ) else {
+            return true
+        }
+        return contents.isEmpty
+    }
+
+    /// Create auto-tasks based on workspace state:
+    /// - Blank directory: "Describe your project" (priority 0) + "Initialize workspace" (priority 50)
+    /// - Non-blank without AXEL.md: "Initialize workspace" (priority 0)
+    /// - Has AXEL.md: no tasks
+    func createAutoTasksIfNeeded(_ workspace: Workspace, container: ModelContainer) throws {
         // Helper to write debug logs
         func debugLog(_ message: String) {
             let debugMsg = "[DEBUG \(Date())] \(message)\n"
@@ -239,7 +273,7 @@ final class WorkspaceContainerManager {
             print("[WorkspaceContainerManager] \(message)")
         }
 
-        debugLog("Checking init task for: \(workspace.name), path: \(workspace.path ?? "nil")")
+        debugLog("Checking auto-tasks for: \(workspace.name), path: \(workspace.path ?? "nil")")
 
         // Skip if workspace has no path
         guard let workspacePath = workspace.path else {
@@ -253,30 +287,25 @@ final class WorkspaceContainerManager {
             return
         }
 
-        debugLog("No AXEL.md found, checking for existing task...")
+        debugLog("No AXEL.md found, checking for existing tasks...")
 
         let context = container.mainContext
 
-        // Check if we already have an active "Initialize workspace" task to avoid duplicates
-        // Only skip if there's a pending/queued/running init task
-        // If the task was completed/aborted but AXEL.md is missing, create a new one
+        // Fetch all existing tasks for duplicate detection
         let descriptor = FetchDescriptor<WorkTask>()
         let existingTasks = try context.fetch(descriptor)
         debugLog("Found \(existingTasks.count) existing tasks")
 
-        let activeInitTask = existingTasks.first { task in
-            let isInitTask = task.title.lowercased().contains("initialize workspace")
-            let isActive = task.status != TaskStatus.completed.rawValue && task.status != TaskStatus.aborted.rawValue
-            return isInitTask && isActive
-        }
-        if activeInitTask != nil {
-            debugLog("SKIP: active init task already exists (status: \(activeInitTask?.status ?? "unknown"))")
-            return
+        // Helper to check if an active task with a given title substring already exists
+        func hasActiveTask(containing titleSubstring: String) -> Bool {
+            existingTasks.contains { task in
+                let matches = task.title.lowercased().contains(titleSubstring.lowercased())
+                let isActive = task.status != TaskStatus.completed.rawValue && task.status != TaskStatus.aborted.rawValue
+                return matches && isActive
+            }
         }
 
-        debugLog("No init task exists, fetching local workspace...")
-
-        // Get the local workspace from this container (not the shared container's workspace)
+        // Get the local workspace from this container
         let workspaceId = workspace.id
         let workspaceDescriptor = FetchDescriptor<Workspace>(
             predicate: #Predicate { $0.id == workspaceId }
@@ -286,18 +315,63 @@ final class WorkspaceContainerManager {
             return
         }
 
-        debugLog("Creating init task...")
+        let isBlank = isBlankDirectory(at: workspacePath)
+        debugLog("Directory is blank: \(isBlank)")
 
-        // Create the task with comprehensive instructions
-        let task = WorkTask(
-            title: "Initialize workspace",
-            description: Self.initializeWorkspaceDescription
-        )
-        task.workspace = localWorkspace
-        context.insert(task)
+        // For blank directories, create the "Describe your project" task first
+        if isBlank && !hasActiveTask(containing: "describe your project") {
+            debugLog("Creating 'Describe your project' task...")
+            let describeTask = WorkTask(
+                title: "Describe your project",
+                description: Self.describeProjectDescription
+            )
+            describeTask.priority = 0
+            describeTask.workspace = localWorkspace
+            context.insert(describeTask)
+            debugLog("Created 'Describe your project' task for: \(workspace.name)")
+        }
+
+        // Create "Initialize workspace" task (priority depends on whether dir is blank)
+        if !hasActiveTask(containing: "initialize workspace") {
+            debugLog("Creating 'Initialize workspace' task...")
+            let initTask = WorkTask(
+                title: "Initialize workspace",
+                description: Self.initializeWorkspaceDescription
+            )
+            initTask.priority = isBlank ? 50 : 0
+            initTask.workspace = localWorkspace
+            context.insert(initTask)
+            debugLog("Created 'Initialize workspace' task for: \(workspace.name)")
+        }
+
         try context.save()
-        debugLog("✓ Created 'Initialize workspace' task for: \(workspace.name)")
     }
+
+    /// The description/instructions for the "Describe your project" task (blank directories only)
+    private static let describeProjectDescription = """
+## Welcome to Axel!
+
+You're looking at the **task queue** — this is how you give work to your AI agents. Each task in the queue gets picked up and worked on automatically.
+
+### What to do now
+
+**Describe what you want to build.** Edit this task's description (or reply to it) and tell the AI:
+
+- What kind of project is this? (web app, CLI tool, API server, mobile app...)
+- What language/framework do you want to use? (TypeScript, Python, Rust, Swift...)
+- A sentence or two about what it should do
+
+For example:
+> "Build a Next.js app with Tailwind that lets users track their reading list. Use SQLite for storage."
+
+### What happens next
+
+Once you describe your project, the AI agent will:
+1. **Scaffold the project** — create the initial file structure, install dependencies, and set up the dev environment
+2. **Initialize the workspace** — create an `AXEL.md` config so Axel knows how to lay out your terminal panes
+
+You can always add more tasks later to keep building. Just think of each task as a unit of work you'd hand to a developer.
+"""
 
     /// The description/instructions for the "Initialize workspace" task
     private static let initializeWorkspaceDescription = """
