@@ -1,0 +1,13 @@
+{
+  "title": "Documentation",
+  "pages": [
+    "index",
+    "installation",
+    "quick-start",
+    "---Getting Started---",
+    "skills",
+    "sessions",
+    "commands",
+    "manifest-file"
+  ]
+}

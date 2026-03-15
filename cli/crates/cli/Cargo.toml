@@ -1,0 +1,26 @@
+[package]
+name = "axel-cli"
+description = "Axel is a tmux workspace launcher"
+version = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+keywords = { workspace = true }
+categories = { workspace = true }
+
+[[bin]]
+name = "axel"
+path = "src/main.rs"
+
+[dependencies]
+axel-core = { workspace = true }
+anyhow = { workspace = true, features = ["std"] }
+clap = { workspace = true, features = ["derive", "env"] }
+colored = { workspace = true }
+dialoguer = { workspace = true }
+dirs = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+comfy-table = "7.2.1"
+ignore = "0.4"
+tokio = { version = "1.43", features = ["rt-multi-thread"] }

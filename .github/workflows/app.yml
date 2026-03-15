@@ -1,0 +1,451 @@
+name: "App: Build and Release"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/Axel/**'
+      - 'app/AxelTests/**'
+      - 'app/Packages/**'
+      - 'app/Axel.xcodeproj/**'
+      - 'cli/**'
+      - '.github/workflows/app.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'app/Axel/**'
+      - 'app/AxelTests/**'
+      - 'app/Packages/**'
+      - 'app/Axel.xcodeproj/**'
+      - '.github/workflows/app.yml'
+  workflow_dispatch:
+    inputs:
+      force_release:
+        description: 'Force release even if version exists'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  SCHEME: Axel
+  PRODUCT_NAME: Axel
+  XCODE_VERSION: '16.3'
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: macos-15
+    defaults:
+      run:
+        working-directory: app
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          lfs: true
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app
+
+      - name: Run Unit Tests
+        run: |
+          xcodebuild test \
+            -scheme "${{ env.SCHEME }}" \
+            -project Axel.xcodeproj \
+            -destination "platform=macOS" \
+            -only-testing:AxelTests \
+            -resultBundlePath TestResults.xcresult \
+            -skipPackagePluginValidation \
+            MACOSX_DEPLOYMENT_TARGET=15.0 \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload Test Results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: app/TestResults.xcresult
+
+  build-macos:
+    name: Build macOS App
+    needs: test
+    runs-on: macos-15
+    defaults:
+      run:
+        working-directory: app
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      dmg_name: ${{ steps.dmg.outputs.name }}
+      should_release: ${{ steps.check_release.outputs.should_release }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          lfs: true
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Get version from Xcode project
+        id: version
+        run: |
+          # Extract MARKETING_VERSION from project.pbxproj
+          VERSION=$(grep -m1 'MARKETING_VERSION' Axel.xcodeproj/project.pbxproj | sed 's/.*= *\([^;]*\);/\1/' | tr -d ' "')
+          if [ -z "$VERSION" ]; then
+            VERSION="1.0.0"
+          fi
+          BUILD_NUMBER=${{ github.run_number }}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION (build $BUILD_NUMBER)"
+
+      - name: Check if release exists
+        id: check_release
+        env:
+          FORCE_RELEASE: ${{ github.event.inputs.force_release }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="app-v${VERSION}"
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release ${TAG} already exists"
+            if [ "$FORCE_RELEASE" = "true" ]; then
+              echo "Force release enabled, will overwrite"
+              echo "should_release=true" >> $GITHUB_OUTPUT
+            else
+              echo "should_release=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "Release ${TAG} does not exist, will create"
+            echo "should_release=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install create-dmg
+        if: steps.check_release.outputs.should_release == 'true'
+        run: brew install create-dmg
+
+      - name: Download Sparkle tools
+        if: steps.check_release.outputs.should_release == 'true'
+        run: |
+          SPARKLE_VERSION="2.6.4"
+          curl -L -o Sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz"
+          mkdir -p sparkle-tools
+          tar -xf Sparkle.tar.xz -C sparkle-tools
+          chmod +x sparkle-tools/bin/*
+
+      - name: Clean SPM caches
+        if: steps.check_release.outputs.should_release == 'true'
+        run: |
+          rm -rf ~/Library/Caches/org.swift.swiftpm
+          rm -rf ~/Library/Developer/Xcode/DerivedData
+
+      - name: Build Axel CLI from source
+        if: steps.check_release.outputs.should_release == 'true'
+        working-directory: cli
+        run: |
+          # Install Rust if not present
+          if ! command -v rustup &> /dev/null; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            source "$HOME/.cargo/env"
+          fi
+          cargo build --release --locked
+          echo "Built axel CLI:"
+          ls -la target/release/axel
+
+      - name: Build macOS app
+        if: steps.check_release.outputs.should_release == 'true'
+        run: |
+          xcodebuild \
+            -scheme "${{ env.SCHEME }}" \
+            -project Axel.xcodeproj \
+            -configuration Release \
+            -destination "platform=macOS" \
+            -derivedDataPath build \
+            -skipPackagePluginValidation \
+            MARKETING_VERSION="${{ steps.version.outputs.version }}" \
+            CURRENT_PROJECT_VERSION="${{ steps.version.outputs.build_number }}" \
+            MACOSX_DEPLOYMENT_TARGET=15.0 \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Prepare app for distribution
+        if: steps.check_release.outputs.should_release == 'true'
+        run: |
+          mkdir -p dist
+          cp -R "build/Build/Products/Release/${{ env.PRODUCT_NAME }}.app" dist/
+
+          # Ensure icon exists (use pre-built fallback if .icon format wasn't compiled)
+          ICNS_PATH="dist/${{ env.PRODUCT_NAME }}.app/Contents/Resources/Axel.icns"
+          if [ ! -f "$ICNS_PATH" ] && [ -f "Axel/Axel.icns" ]; then
+            echo "Using pre-built icon fallback..."
+            cp "Axel/Axel.icns" "$ICNS_PATH"
+          fi
+
+      - name: Embed Axel CLI in app bundle
+        if: steps.check_release.outputs.should_release == 'true'
+        run: |
+          APP_RESOURCES="dist/${{ env.PRODUCT_NAME }}.app/Contents/Resources"
+          cp ../cli/target/release/axel "$APP_RESOURCES/axel"
+          chmod +x "$APP_RESOURCES/axel"
+          echo "Embedded axel CLI into app bundle at $APP_RESOURCES/axel"
+          ls -la "$APP_RESOURCES/axel"
+
+      - name: Ad-hoc sign app (when no certificate)
+        if: steps.check_release.outputs.should_release == 'true' && env.MACOS_CERTIFICATE == ''
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+        run: |
+          echo "No signing certificate provided, using ad-hoc signing..."
+          codesign --force --deep --sign - "dist/${{ env.PRODUCT_NAME }}.app"
+          echo "Ad-hoc signing complete"
+          codesign -vvv --deep --strict "dist/${{ env.PRODUCT_NAME }}.app" || true
+
+      - name: Import signing certificate
+        if: steps.check_release.outputs.should_release == 'true' && env.MACOS_CERTIFICATE != ''
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # Create and configure keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # Import certificate
+          echo "$MACOS_CERTIFICATE" | base64 --decode > certificate.p12
+          security import certificate.p12 -P "$MACOS_CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+
+          # Allow codesign to access the key without prompting
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # Add to search list
+          security list-keychain -d user -s $KEYCHAIN_PATH login.keychain
+
+          echo "Available signing identities:"
+          security find-identity -v -p codesigning $KEYCHAIN_PATH
+
+          IDENTITY=$(security find-identity -v -p codesigning $KEYCHAIN_PATH | grep "Developer ID Application" | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          if [ -z "$IDENTITY" ]; then
+            echo "Error: No Developer ID Application identity found"
+            security find-identity -v $KEYCHAIN_PATH
+            exit 1
+          fi
+
+          echo "Signing with identity: $IDENTITY"
+          codesign --force --options runtime --sign "$IDENTITY" "dist/${{ env.PRODUCT_NAME }}.app/Contents/Resources/axel"
+          codesign --force --options runtime --deep --sign "$IDENTITY" "dist/${{ env.PRODUCT_NAME }}.app"
+
+          # Verify signature
+          codesign -vvv --deep --strict "dist/${{ env.PRODUCT_NAME }}.app"
+
+      - name: Create DMG
+        if: steps.check_release.outputs.should_release == 'true'
+        id: dmg
+        run: |
+          chmod +x scripts/create-dmg.sh
+          DMG_NAME="${{ env.PRODUCT_NAME }}-${{ steps.version.outputs.version }}-macos.dmg"
+          scripts/create-dmg.sh "dist/${{ env.PRODUCT_NAME }}.app" "dist/${DMG_NAME}"
+          # Also create a "latest" copy for stable download URLs
+          cp "dist/${DMG_NAME}" "dist/${{ env.PRODUCT_NAME }}-latest-macos.dmg"
+          echo "name=${DMG_NAME}" >> $GITHUB_OUTPUT
+          echo "path=dist/${DMG_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Notarize DMG
+        if: steps.check_release.outputs.should_release == 'true' && env.APPLE_ID != ''
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          xcrun notarytool submit "${{ steps.dmg.outputs.path }}" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait
+          xcrun stapler staple "${{ steps.dmg.outputs.path }}"
+
+      - name: Download existing appcast
+        if: steps.check_release.outputs.should_release == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download appcast -p appcast.xml -D dist/ 2>/dev/null || true
+
+      - name: Generate appcast
+        if: steps.check_release.outputs.should_release == 'true'
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          if [ -n "$SPARKLE_PRIVATE_KEY" ]; then
+            printf '%s' "$SPARKLE_PRIVATE_KEY" > /tmp/sparkle_private_key
+            echo "Key length: $(wc -c < /tmp/sparkle_private_key) bytes"
+
+            ./sparkle-tools/bin/generate_appcast \
+              --ed-key-file /tmp/sparkle_private_key \
+              --download-url-prefix "https://github.com/${{ github.repository }}/releases/download/app-v${{ steps.version.outputs.version }}/" \
+              dist/
+            rm -f /tmp/sparkle_private_key
+            echo "Generated appcast.xml:"
+            cat dist/appcast.xml
+          else
+            echo "Warning: SPARKLE_PRIVATE_KEY not set, skipping appcast generation"
+          fi
+
+      - name: Upload artifacts
+        if: steps.check_release.outputs.should_release == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Axel-macOS-${{ steps.version.outputs.version }}
+          path: app/dist/
+          if-no-files-found: warn
+
+  create-release:
+    name: Create GitHub Release
+    needs: build-macos
+    runs-on: ubuntu-latest
+    if: needs.build-macos.outputs.should_release == 'true'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: Axel-macOS-${{ needs.build-macos.outputs.version }}
+          path: ./artifacts
+
+      - name: Create tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ needs.build-macos.outputs.version }}"
+          TAG="app-v${VERSION}"
+
+          # Create tag if it doesn't exist
+          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
+
+          # Create release with DMG assets
+          gh release create "$TAG" \
+            --title "Axel App $VERSION" \
+            --generate-notes \
+            --latest \
+            ./artifacts/*.dmg
+
+          echo "Created release: $TAG"
+
+      - name: Update appcast release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -f "./artifacts/appcast.xml" ]; then
+            # Create or update the "appcast" release with the latest appcast.xml
+            if gh release view appcast >/dev/null 2>&1; then
+              gh release upload appcast ./artifacts/appcast.xml --clobber
+            else
+              gh release create appcast \
+                --title "Sparkle Appcast" \
+                --notes "Auto-updated appcast.xml for Sparkle updates. Do not delete." \
+                ./artifacts/appcast.xml
+            fi
+            echo "Updated appcast release with latest appcast.xml"
+          fi
+
+  update-homebrew:
+    name: Update Homebrew Cask
+    needs: [build-macos, create-release]
+    runs-on: ubuntu-latest
+    if: needs.build-macos.outputs.should_release == 'true'
+
+    steps:
+      - name: Download DMG artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Axel-macOS-${{ needs.build-macos.outputs.version }}
+          path: ./artifacts
+
+      - name: Calculate SHA256
+        id: sha
+        run: |
+          DMG_FILE="./artifacts/${{ needs.build-macos.outputs.dmg_name }}"
+          SHA256=$(sha256sum "$DMG_FILE" | cut -d' ' -f1)
+          echo "sha256=$SHA256" >> $GITHUB_OUTPUT
+          echo "SHA256: $SHA256"
+
+      - name: Checkout Homebrew tap
+        uses: actions/checkout@v4
+        with:
+          repository: lgalabru/homebrew-taps
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update cask formula
+        run: |
+          VERSION="${{ needs.build-macos.outputs.version }}"
+          SHA256="${{ steps.sha.outputs.sha256 }}"
+
+          mkdir -p homebrew-tap/Casks
+
+          cat > homebrew-tap/Casks/axel.rb << EOF
+          cask "axel" do
+            version "${VERSION}"
+            sha256 "${SHA256}"
+
+            url "https://github.com/lgalabru/axel/releases/download/app-v#{version}/Axel-#{version}-macos.dmg"
+            name "Axel"
+            desc "AI-powered terminal workspace manager"
+            homepage "https://github.com/lgalabru/axel"
+
+            livecheck do
+              url :url
+              strategy :github_latest
+            end
+
+            auto_updates true
+            depends_on macos: ">= :sequoia"
+
+            app "Axel.app"
+
+            zap trash: [
+              "~/Library/Application Support/Axel",
+              "~/Library/Caches/Axel",
+              "~/Library/Preferences/com.txtx.Axel.plist",
+            ]
+          end
+          EOF
+
+          echo "Updated cask formula:"
+          cat homebrew-tap/Casks/axel.rb
+
+      - name: Commit and push
+        working-directory: homebrew-tap
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/axel.rb
+          git diff --cached --quiet || git commit -m "Update axel to ${{ needs.build-macos.outputs.version }}"
+          git push

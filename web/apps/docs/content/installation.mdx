@@ -1,0 +1,71 @@
+---
+title: Installation
+description: How to install axel CLI and its dependencies
+---
+
+# Installation
+
+axel can be installed via our install script or built from source with Cargo.
+
+## Quick Install
+
+The fastest way to install axel:
+
+```bash
+curl -sL https://raw.githubusercontent.com/txtx/axel/main/scripts/install.sh | bash
+```
+
+## Prerequisites
+
+Before installing axel, ensure you have the following:
+
+- [tmux](https://github.com/tmux/tmux) - Terminal multiplexer (version 3.0 or later recommended)
+- [Claude Code](https://claude.ai/code), [Codex](https://openai.com/codex), or another AI coding assistant (optional)
+
+## Install with Cargo
+
+If you have [Rust](https://www.rust-lang.org/tools/install) installed, you can build from source:
+
+```bash
+cargo install axel-cli
+```
+
+This will download, compile, and install the latest version of axel to your Cargo bin directory.
+
+## Install tmux
+
+If you do not have tmux installed, use your system package manager:
+
+### macOS (Homebrew)
+```bash
+brew install tmux
+```
+
+### Ubuntu/Debian
+```bash
+sudo apt install tmux
+```
+
+### Fedora
+```bash
+sudo dnf install tmux
+```
+
+### Arch Linux
+```bash
+sudo pacman -S tmux
+```
+
+## Verify Installation
+
+Confirm axel is installed correctly:
+
+```bash
+axel --version
+```
+
+You should see the version number printed to the console.
+
+## Next Steps
+
+Now that axel is installed, head to the [Quick Start](/quick-start) guide to create your first workspace.

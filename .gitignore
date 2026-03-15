@@ -22,3 +22,4 @@ sparkle-tools/
 .swiftpm/
 Package.resolved
 Axel.xcodeproj/xcuserdata
+.axel/

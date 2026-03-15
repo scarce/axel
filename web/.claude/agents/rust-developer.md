@@ -1,0 +1,1 @@
+/Users/ludovic/.config/barrel/agents/rust-developer/AGENT.md

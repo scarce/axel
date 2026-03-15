@@ -1,0 +1,225 @@
+---
+title: Manifest File
+description: AXEL.md reference - configure workspaces, skills, and terminal layouts
+---
+
+# Manifest File
+
+The `AXEL.md` file defines your workspace configuration: which panes to run, where to find skills, and how to lay out terminal grids. It combines YAML frontmatter with markdown content for project context.
+
+## File Location
+
+axel walks up the directory tree looking for `AXEL.md`. You can also specify a path with the `-m` flag.
+
+## Complete Example
+
+```yaml title="AXEL.md"
+---
+workspace: my-project
+
+skills:
+  - path: ./skills
+  - path: ~/.config/axel/skills
+
+layouts:
+  panes:
+    # AI pane - name defaults to "claude"
+    - type: claude
+      color: gray
+      skills:
+        - "*"
+    # Custom pane - requires unique name
+    - type: custom
+      name: shell
+      notes:
+        - "$ axel -k my-project"
+
+  grids:
+    default:
+      type: tmux
+      claude:          # References pane named "claude"
+        col: 0
+        row: 0
+      shell:           # References pane named "shell"
+        col: 1
+        row: 0
+        color: yellow
+---
+
+# Project Documentation
+
+Your project context goes here. This content is symlinked as CLAUDE.md for Claude Code
+or AGENTS.md for Codex/OpenCode, providing project-specific instructions to the AI.
+
+## Architecture
+
+Describe your project structure, key patterns, and conventions...
+```
+
+## Top-Level Fields
+
+### workspace
+**Type:** `string` (required)
+
+Workspace name. Used for the tmux session name and display.
+
+### skills
+**Type:** `array`
+
+List of directories to search for skill files. First match wins for duplicate names.
+
+```yaml
+skills:
+  - path: ./skills
+  - path: ~/.config/axel/skills
+```
+
+### layouts
+**Type:** `object` (required)
+
+Contains `panes` (pane definitions) and `grids` (layout profiles).
+
+## Pane Configuration
+
+Each pane in the `layouts.panes` array defines a pane type. There are two categories:
+
+- **AI panes**: Built-in types `claude`, `codex`, `opencode`, `antigravity` - the `name` defaults to the type
+- **Custom panes**: Use `type: custom` with a unique `name` field for shells and custom commands
+
+### AI Pane (claude, codex, opencode, antigravity)
+
+```yaml
+layouts:
+  panes:
+    - type: claude
+      color: purple
+      skills:
+        - "*"                    # all skills, or list specific names
+      model: sonnet              # sonnet, opus, haiku
+      prompt: "Your task..."     # initial prompt
+      allowed_tools:             # restrict to specific tools
+        - Read
+        - Write
+      disallowed_tools: []       # block specific tools
+      args: []                   # additional CLI arguments
+```
+
+| Field | Description |
+|-------|-------------|
+| `type` | AI type: claude, codex, opencode, antigravity |
+| `name` | Optional unique name (defaults to type). Use when you need multiple panes of the same AI type |
+| `color` | Pane color: purple, yellow, red, green, blue, gray, orange |
+| `skills` | Skill names to load. Use `"*"` for all skills |
+| `model` | Model to use (e.g., sonnet, opus, haiku for Claude) |
+| `prompt` | Initial prompt to send when launching |
+
+### Custom Pane (shell, commands)
+
+Use `type: custom` with a unique `name` for shells and custom commands. The `name` is **required** and must be unique - it's how grids reference the pane.
+
+```yaml
+layouts:
+  panes:
+    # Shell pane
+    - type: custom
+      name: shell
+      notes:
+        - "$ axel -k my-project"
+
+    # Dev server pane
+    - type: custom
+      name: dev_server
+      command: npm run dev
+      notes:
+        - "Frontend dev server"
+
+    # Multiple shells with unique names
+    - type: custom
+      name: logs
+      command: tail -f /var/log/app.log
+      color: red
+```
+
+| Field | Description |
+|-------|-------------|
+| `type` | Must be `custom` for non-AI panes |
+| `name` | **Required.** Unique identifier for referencing in grids |
+| `command` | Command to execute (optional - runs shell if not specified) |
+| `notes` | Notes displayed in the pane on startup |
+| `color` | Pane color: purple, yellow, red, green, blue, gray, orange |
+| `path` | Working directory for this pane |
+
+<Callout type="info">
+**Why unique names?** Grid layouts reference panes by name. If you have multiple shells, each needs a unique name (e.g., `shell`, `dev_server`, `logs`) so grids can place them correctly.
+</Callout>
+
+## Grid Layouts
+
+Grids define how panes are arranged in tmux. Each grid references panes by their **name** and positions them in a column/row grid.
+
+```yaml
+layouts:
+  panes:
+    - type: claude
+    - type: custom
+      name: shell
+    - type: custom
+      name: dev_server
+
+  grids:
+    default:
+      type: tmux
+      claude:           # References the "claude" pane
+        col: 0
+        row: 0
+        width: 50
+      shell:            # References the "shell" pane
+        col: 1
+        row: 0
+        height: 40
+        color: yellow
+      dev_server:       # References the "dev_server" pane
+        col: 1
+        row: 1
+        height: 60
+
+    solo:
+      type: shell
+      claude:
+        col: 0
+        row: 0
+```
+
+### Grid Types
+
+- `tmux` - Standard tmux session with panes (default)
+- `tmux_cc` - iTerm2 tmux integration mode
+- `shell` - No tmux, run first pane directly
+
+### Cell Positioning
+
+Each key in the grid (e.g., `claude`, `shell`, `dev_server`) references a pane by its name. Position panes with column/row coordinates:
+
+| Field | Description |
+|-------|-------------|
+| `col` | Column position (0, 1, 2...) - left to right |
+| `row` | Row position (0, 1, 2...) - top to bottom within column |
+| `width` | Column width percentage |
+| `height` | Row height percentage |
+| `color` | Override pane color for this grid |
+
+<Callout type="tip">
+**Popular layout:** Claude on left (50%), right side split with shell on top (40%) and dev server below (60%).
+</Callout>
+
+## Colors
+
+Available pane colors:
+
+- `purple`
+- `yellow`
+- `red`
+- `green`
+- `blue`
+- `gray`
+- `orange`

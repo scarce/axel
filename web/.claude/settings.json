@@ -1,0 +1,88 @@
+{
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "command": "curl -s -X POST -H 'Content-Type: application/json' -d @- http://localhost:4318/events/shell-13171",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "curl -s -X POST -H 'Content-Type: application/json' -d @- http://localhost:4318/events/shell-13171",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "curl -s -X POST -H 'Content-Type: application/json' -d @- http://localhost:4318/events/shell-13171",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "command": "curl -s -X POST -H 'Content-Type: application/json' -d @- http://localhost:4318/events/shell-13171",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "curl -s -X POST -H 'Content-Type: application/json' -d @- http://localhost:4318/events/shell-13171",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "curl -s -X POST -H 'Content-Type: application/json' -d @- http://localhost:4318/events/shell-13171",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "command": "curl -s -X POST -H 'Content-Type: application/json' -d @- http://localhost:4318/events/shell-13171",
+            "timeout": 5,
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ]
+  }
+}

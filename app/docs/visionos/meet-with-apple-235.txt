@@ -1,0 +1,401 @@
+Hello again.
+ I'm Tim, as you may have heard earlier, and I run the post team for Immersive at Apple.
+ But I'm really actually here speaking on behalf of Andrew Rakestraw, our Immersive VFX lead, who unfortunately couldn't be here today.
+Andrew and I have worked together in Immersive and with him leading visual effects for about a decade now.
+ And one of Andrew’s common quotes when we work with new folks is, with two lenses, immersive visual effects is at least twice as complicated as traditional.
+ And then you add 90 frames per second, and then 8K per eye, it's really easy to get intimidated.
+ But the good news is that in visual effects for immersive, even the simple stuff can be twice as impactful when you get it right.
+ Even a simple title floating in space when it's done well feels novel to people because it's just not things they've seen before, especially when you pay attention to the small details.
+ And as you'll see later in the walkthrough, the new immersive tools in Fusion are making this simpler than ever.
+ So just a few small examples to get ahead of the actual practical walkthrough.
+ One, you've heard it before, but previsualization in 180 degrees serves a lot of functions.
+ You can plan your blocking, you can plan your production design, camera movement, speed of movement, editorial feasibility, cutting things together, and of course, planning for visual effects placement and methodology.
+ One pro tip, if you can't justify Previz budget from a VFX perspective, you can justify the production cost savings of a shot list where you've already cut every shot and made sure the edit works before you spend a dime on locations and crew and all that.
+ So just a tip.
+ Also, data capture on set and special appearance here.
+ This is Andrew.
+ Since he couldn't be with us, I figured I got to include Andrew somewhere.
+ Data capture on set for VFX is really important.
+ Just like a lot of traditional cinematic effects, capturing HDRIs, photogrammetry, LiDAR scans, chrome and gray spheres, color charts, all of these will help you when it comes to either Adding elements into a shot, like when we did prehistoric planet immersive was something where we were adding dinosaurs into real-world environments.
+ But also even cleanup for shots, having those references will be really helpful if you have to clean something up or take an element out.
+ Blurring logos, there's things we have to contend with, all considered in stereo.
+ So it just really helps to have as much data as you can justify capturing on production that carries through into the VFX pipeline.
+Really another thing, spatially aware details really stand out.
+ So inserting titles and other assets into shots, a few things to consider when I, what I mean by spatially aware is rather than thinking of something as being centered, you actually have to think of like, is it aligned to the surface that people see? You know, if I'm standing here on the stage and you're putting a title, well it matters what the line of the stage is, not necessarily the center of the frame.
+ And so really thinking through if you're putting a title in front of a fence, Well, if it's not aligned to the fence, it's going to look like the title is wrong when actually the fence is just not perfectly centered to camera.
+ People will always believe that the graphic is wrong even when it might be that your camera was a little off of alignment.
+ So really taking into account the visual effects process, the idea that you have to actually adjust for the production rather than just making your CG perfect graphics.
+ Camera tracking is really important to get right for realistic integration.
+ Again, because you have the realistic stereoscopic depth that you're contending with, getting camera tracking just right, there's gonna be a lot of scrutiny on that.
+ And another one that kind of sounds obvious, but when you're doing paintout fixes or painting logos, and you have artists that are working on a flat screen, make sure you're planning for how to regularly vet that work in stereo in Vision Pro, because it's really easy to have something that looks perfectly like it's disappeared on a monitor, and then you pop it into Vision Pro, and you see that plate floating off, and it's not quite right.
+ So just another thing to consider.
+ Like I said, reviewing in Apple Vision Pro at all phases.
+ So one thing with visual effects for immersive, there's a lot of corners you can cut, just like in regular visual effects.
+ They're just not really the same corners that people cut for 2D screens.
+ So being aware that when you're bringing in somebody that's not used to working in immersive visual effects, having them do extra rounds looking at things in context and understanding if the tricks of the trade that they're using actually apply to immersive.
+ There's too many for me to list here in a short introduction, but I think that's just a really good principle to remind everybody that's working in it, get in the medium, get in the format, get reviews going that way.
+ So really, now let's just have a look at some VFX workflows in real time.
+Please welcome up Matt Dijon, a workflow expert at Blackmagic Design to take you through a Fusion workflow.
+All right, thanks a lot.
+ My name is Matt DeJohn, and yeah, we're going to be walking through some visual effects workflows in DaVinci Resolve for Apple Immersive Video.
+ And so let's go ahead and dive right in.
+ So if you're not familiar, the DaVinci Resolve, it has the Fusion tab, which is our visual effects package with inside of DaVinci Resolve.
+ And so as a quick intro to that, if we navigate right to the Fusion page here, I'm just going to cover a couple of things about the UI so we can get our bearings here.
+So we're presented automatically with several nodes.
+So we have immediate in one node and we have immediate out one node.
+ And that represents the left eye.
+ And then the media into and media out to represents the right eye and anything that you do between those two nodes is the effect you're applying to these clips.
+ And then if you want to view any of these nodes a little bit different than the color page, you can actually drag these nodes into one of the two viewers.
+ And so here I can drag that media in one to the first and second viewer if I want, or I can use my number keys.
+ And so if I press one and two, I can unload those or load the left eye into each of those respective viewers.
+ You also see that there's a color difference between my left monitor and my right monitor.
+ That's because I've got a View LUT applied in my right monitor.
+ And so what that lets you do is work in a different color space than you're actually reviewing.
+ So I have a View LUT set up on my right monitor to convert this from the camera film log space to Rec.
+ 709.
+ So it's a little bit more pleasing to look at.
+So in terms of immersive specific features, you will find several of those under the tool menu.
+ So you can access that by right clicking and then going to add tool and then down to our VR section.
+ So you'll see an immersive patcher, a latlong patcher and a panomap tool.
+And so we're going to go ahead and we're just going to start with our first one here.
+ And we're going to look at what does that immersive patcher do? Because it's kind of the core of what you're going to do in visual effects within DaVinci Resolve.
+ So if we go ahead and connect these nodes up.
+ And if we view our immersive patcher, it's already changing our image.
+If we look at our inspector over here, you'll see we have a couple of different settings.
+ If we choose undistort, what that'll do is it will actually convert our lens space image to a rectilinear image, which we're seeing on screen right now.
+ And so once you've done that, it's a little bit more conducive to doing paint work or compositing work in this space.
+You can control what your angle is of view.
+ um you know how you're orienting this kind of 90 degree field of view you're looking at and you can even adjust your angle of view that this tool is producing so i can have you know a zoomed in extraction or something even wider than 90 degrees but in general i'll work at this 90 degree field of view for my visual effects work So that's the immersive patcher.
+ There's also an extra input here, and this actually allows you to borrow the metadata from a Blackmagic RAW file.
+ So as you've been hearing throughout the last few days, ILPD metadata is very important.
+ And so if you want to apply ILPD metadata from a Blackmagic RAW clip to, let's say, a 2D clip or a graphic, you would use that second green input to basically borrow that metadata.
+ And I’ll show you a bit more about that later.
+Next tool we’re going to kind of talk about is the latlong patcher.
+ Actually, no, we’re not going to talk about the latlong patcher because the immersive patcher essentially is our immersive version of that.
+ The other tool we're going to talk about is panomap.
+And panomap is really useful to convert to various different types of formats.
+ So here we're converting from immersive to a lat long space.
+And so that can be useful for certain workflows, which we'll get into in terms of like stabilization.
+ But this is also useful, let's say you have a CG render that's been delivered to you and you want to map that CG render from this equirectangular render into an immersive space, you could swap your settings here to set your from setting to lat long and then your to setting to immersive.
+ So a couple of tools to keep an eye on.
+ And let's go ahead and go to our next shot.
+Oh, actually, two other things to note.
+There is an immersive viewer, like all the other pages, available in the Fusion page.
+ If you right-click inside your viewer, you can go to 360 view and then select immersive, and that will give you a rectilinear preview of whatever node you're viewing right now.
+In addition to that, you can also preview your work in the Apple Vision Pro headset.
+ And you would do that because right now we have a separate left and right eye pipe, so we actually need to combine these.
+ And we would use a node called the combiner node.
+ And I'll just bring up my tool search and then connect up my left and my right.
+And then you would set your combined mode to either horizontal.
+ Actually, let's view that node.
+There we go.
+Or more kind of conducive to this whole workflow is I would select layers.
+ And that actually combines both your left and right eyes into layers that the Vision Pro can recognize from the stream and then unwrap in the headset so you can check your work.
+ So that's a brief overview on how to preview in the headset.
+ Let's go to our kind of first practical example here.
+So tripods, we try to remove tripods, we try to keep the tripods out of frame, but you're not always successful.
+ So in this case, we see a tripod just peeked into our frame here at the bottom, so we're gonna have to paint that out.
+ This particular project was shot really well, so there wasn't many examples.
+ This is one of the few that snuck in there.
+ So let's take a look at what a simple tripod removal would be with inside of Fusion.
+All right, so if we start with our media in one, that is our left eye media in.
+ And we'll go ahead and let that load for a second.
+There we go, we got our left eye and then our right eye is media in two.
+ And coming back to the left pipe, basically we can work on one eye first and then we can apply a lot of that work from the left eye to the right eye.
+ And this is a relatively simple thing to do in this kind of a shot where you have a flat ground plane you're working with.
+ So this technique can be used in those types of shots.
+ I'll show a slightly more complex situation in just a few shots.
+ So we're going to feed that through into the immersive patcher and we're going to set that to undistort.
+ So we are now getting a rectilinear projection and we've actually adjusted our angle here.
+ So we're looking directly down so we can see that tripod.
+Let's go ahead and zoom in, see what we're looking at there.
+ And then if we view our paint node.
+ We've done just a few different paint strokes to remove that tripod leg.
+ And then we need to actually map this back into lens space.
+ So if we copy this immersive patcher and we paste it after the paint node, we can remap that work back to the proper position in the lens space.
+ All we need to do is leave all our settings the same except for we change our mode to distort instead of undistort.
+ And that basically puts that image back in the proper lens space.
+And from there, I have defined a polygon just to define the area I want to replace.
+ And I've merged that over our original.
+ And here's our before and our after of that.
+Now, that's one eye.
+ That's great.
+ We have to get all that work transferred over to the right eye.
+ And as I mentioned, in this case, it's going to be a relatively simple workflow.
+ So let's go ahead and walk through what we're doing for the right eye.
+ We have our same immersive patcher.
+ And then let's actually compare what we're looking at if we overlay the left eye with the right eye by viewing this merge node.
+Let's go ahead and zoom in here.
+There we go.
+So we can see that we're overlaying these, but they're not quite aligned.
+If we add a transform just before our right eye gets merged into this merge node, we can adjust the position of that right eye so that our ground plane is well aligned between those two perspectives.
+ And so once we've done that, and we'll just fine tune it here, You can see now everything looks pretty sharp right around the area we want to paint out.
+ If we had something to remove over here, that's still a little bit blurry, it's not quite aligned, so this technique wouldn't work.
+ But since we have a relatively small area we wanna remove, this technique's gonna be kind of the simplest way to apply this paint work to the right eye.
+ And so we can take our left eye paintwork and copy it and paste it into our right eye pipe here.
+ And it's going to use the same paint strokes that we laid down for the left eye.
+ And so we're actually going to get a very consistent result that's going to play properly in depth.
+ So if we go ahead and load the left eye and then load the right eye, you'll see that we're getting a very consistent patch there between those two eyes.
+ And then just like we did for the left eye, we have to reverse out some of the transforms that we did.
+Let's see, we'll zoom out here.
+ So the first one we need to reverse out is this transform we used to align the right eye to the left eye.
+ So we copy that and paste it after our Paint node.
+ And we actually invert the transform.
+ So when I check that box, it actually undoes the earlier transform.
+ So moves this back into the proper position.
+And then we do the same thing with the immersive patcher.
+ We copy and paste that and change that to distort.
+And we'll see that it is remapped to the proper position in lens space.
+ and then merging that over the original background, we've now effectively painted out our right eye in a consistent way that matches the left eye.
+ So that's a relatively simple paintout technique.
+Let's look at another very common thing.
+ So here we can see we have our right eye lenses visible.
+ And if we actually view this in our immersive viewer, you'll see it's not even as subtle as what we're seeing in this lens space.
+ So if we pan over to the right, it's actually a pretty big lens in our field of view.
+ Now we can mask that out with Edge Mask, which we'll be going over a little bit later in one of the later sessions, or we can actually borrow the image data from the other camera to paint out that lens so we can get a complete 180 degree field of view.
+ So let's dive into what that looks like.
+Okay, starting with our left eye.
+And then let's look at our right eye as well.
+ Make sure we're getting what we want.
+We'll just reload that.
+ There we go.
+ So we got our right eye, we have our left eye, and you can see we have two immersive patchers right next to my left eye, my media N1.
+ That's for the left eye and also for the right eye.
+ I've set those to undistort and the y-axis to 90 degrees, so we're looking directly at that lens.
+ And you can see we have some image information we can use to paint out that lens.
+ And so with a simple transform, we can roughly align the other camera with this camera so that we can use it as a source.
+ And this will work for relatively consistent depths.
+ If you have much more complexity near the camera, you will need to use a more advanced technique.
+ But for simple scenarios, this works pretty well.
+ And so I'm defining my lens area with this mask and then merging over the right eye image over the left eye image.
+ And then I've actually set this merge to actually multiply it by the mask so I don't have to do a separate garbage mat later on.
+ And we're copying and pasting our immersive patcher like we did before to push that image back to the proper position in lens space.
+ And then we merge that in, and we've effectively painted out our lens from the left eye.
+ And you would repeat that same process for the right eye's left side of the frame.
+ So that's a relatively simple paintout method.
+ Let's talk about a little bit more of a complex scenario for, let's say, painting out a tripod.
+ So in this particular case, let's go into our viewport mode here.
+All right, we have our tripod, but what we don't have is a flat ground plane.
+ So we can't use the same technique because the stuff we need to paint out is all at various different depths in the scene.
+ So this is a little bit more of a complex scenario.
+ In fact, if we go ahead and look at our same technique of aligning our left eye with our right eye, we will see the limitation here.
+All right, so that's our left eye.
+ This is going to be our right eye.
+ And I'm going to go ahead and force that to re-render that current frame.
+ There we go.
+ And we're going to feed both of those through the immersive patchers.
+A little bit of a transform.
+ And then we can see here.
+.
+.
+that right under the foot of this tripod, it's pretty well aligned, but it's not aligned here where we need to paint out some of the shadow or in some of those cracks.
+ And so this generalized method of doing the paint out is not gonna work in this particular case.
+ We have to get something that's a little bit more accurate on a per pixel level.
+ So in order to do that, we're going to do the same thing we did with the left eye.
+ So the left eye is going to be nice and simple.
+ We're doing our paint work.
+ We're using our immersive patcher to put it back into the proper position.
+ There we go.
+ And merging that over the top of our original, totally fine.
+ It's when we come into the right eye, we have to do a bit more of a complicated technique, which is using the disparity generator.
+ So that's a disparity tool and we're gonna basically feed the left eye immersive patcher and the right eye immersive patcher into this tool.
+ What this tool does is it actually calculates the difference between those eyes on a per pixel basis so that you can basically borrow the pixels from the left eye to push to the right eye.
+And so one thing that we are missing here is we are actually missing some image data that's going to make our disparity channel not quite as useful as we want.
+ So I'm actually doing some clean plate work to remove that gap and gap fillet.
+ So if I look at this clean plate tool here.
+ It's using as an input this set of masks.
+ And then it's cutting a hole in my disparity channel.
+ And then I am actually growing that disparity and then filling it so that I have a good quality disparity to work with.
+ And with that, I then use the channel booleans to combine that disparity with the image data and feed that to a stereoscopic tool called NuEye.
+ And so what we essentially want to do with NuEye is NuEye takes image data and it takes disparity data and it allows you to remap pixels from one eye to the other.
+ So it's been useful for stereoscopic workflows for years and years and also applies to this immersive workflow.
+ So in this case, I don't really need the left eye.
+ So I've disabled it.
+ All I need is a new right eye.
+ And then my X interpolation factor that defines if you want a left eye or right eye or somewhere in between 1.
+0 equals my right eye.
+ And then my last selection here is which frame am I going to be using? Well, I want to use the image data from my left eye where I did the paint work.
+ And then I'm using my forward disparity to push that to the right eye position.
+So let's go ahead and look at a result here.
+And we can see that that has pushed it into the correct position.
+ So this is our left eye with the paintwork, and then we're pushing that to the right eye with that paintwork intact.
+ And that's gonna include all those fine details of the rock and the differences in the disparity.
+ And we send that through our immersive patcher, and then we merge that in, and now we have an accurate paintout that properly maps to the nuances of this uneven ground plane.
+ So that's a more complex paintout method.
+That same kind of idea can be used in more complex scenarios for lens paintouts.
+ So in this case, we have some bushes that are very close and some that are very far.
+ And that same technique of creating a disparity to get a more nuanced mapping from one eye to the other can be used in this kind of a scenario as well.
+ For the sake of time, I'm just going to briefly go over that and then jump to a couple other scenarios.
+So just to see how that's mocked up here, we have our left eye.
+we're just gonna load here there we go and we've got a right eye and just like the other lens paint out we're using our immersive patcher to reorient towards the right side and we see we have some image data we can use from the opposing eye we feed that through a disparity we do our same clean plate method here and we'll let that process and then we use our new eye just like we did for the tripod paint out to get our new left eye patch.
+ There we go.
+ So this is our original left eye, and now this is our new left eye, and we can just merge that in to remove that lens in a more nuanced way.
+So that's a more advanced lens paintout method.
+And let's go back to our timeline view.
+Let's talk about another really common scenario.
+ In this particular shot, we have our two characters here.
+ They're looking at a phone, and so we want to do a screen insert that's composited into this shot.
+This same concept we're going to go over is going to also apply to 2D footage.
+ You can use this same technique.
+ And so in this case, I actually have these two layers as separate layers on the edit page.
+ And we're going to want to reference the underlying Blackmagic RAW clips ILPD data.
+ So I'm going to go ahead and select that BRAW clip and find it in the media pool so I can pull it into this Fusion comp up here.
+All right.
+So let's view our media N1, which is going to be our graphic.
+There we go.
+ And then I've already dragged in my media in two, which is my Blackmagic RAW file.
+ And you can see we're using an immersive patcher here with both inputs.
+ So the one thing we need to do to this piece of media so that it's properly set up for the immersive patcher is we need to get the canvas to match the format that the immersive patcher is expecting.
+ So I'm using a crop tool.
+ to expand the canvas to 1920 by 1920.
+So now we have a nice square canvas.
+ And then I'm using a resize tool to get us up to the full resolution that the immersive patcher is expecting, which is 8160 by 7200.
+ That's the resolution that matches our Blackmagic RAW file.
+And then we feed that into our immersive patcher.
+along with the Blackmagic raw clip connected to the metadata input.
+ And so the difference there, if we go ahead and zoom into this clip, there we go.
+If we didn't have that connected, I'll just disconnect that, you can see that the mapping changes slightly.
+ This is a default lens mapping that the graphic is being applied to, but we want this to match the lens mapping of the underlying clip, so we want to use that metadata.
+ So this is the proper lens mapping for this particular camera.
+And then in terms of dialing in this effect, I have this merge node off to the side so we can just view the effect in context.
+ And within the immersive patcher, I can adjust things like angle of view.
+ So how large do I want this graphic to appear in the frame? I can adjust my orientation.
+ Where do I want it to land in the frame? And it's important to actually check this in your immersive viewer.
+So if I come back to the edit page, and I'll go ahead and activate my fusion comps here.
+I want to actually look at this in my viewport.
+and then pan back over because a lot of times when you're looking at this in lens space, you can lay out your graphics in a way that looks pleasing but is gonna require the viewer to turn their head to view all the things you want them to view.
+ So this blocking here of this graphic with our characters works out really well in order to allow them to see, allow the audience to see the graphic but also the subject at the same time.
+Now, the last thing to consider is that this is a 2D graphic, and we actually need to dial in the 3D effect of this graphic.
+ And so if we go to our color page, last thing we'll want to do is actually adjust our convergence so that this plays properly in depth.
+ So just to demonstrate that here, we can switch into anaglyph mode, and we can see that we have no depth.
+ And we'll go into our immersive viewer.
+Here we go.
+ We can see that we have no depth for our graphic.
+ And so what that means is it's actually going to be sinking into these foreground elements, these elements that are nearer to us.
+ So we need to actually shift that graphic out.
+ So if I go and drag that actually forward here, You'll see we can adjust the convergence and the placement in depth of that graphic.
+ And if you're previewing an anaglyph or if you're previewing on a 3D monitor or in the Vision Pro, you can dial that in so you get the effect you're looking for.
+ And so that effectively is doing the shot.
+ Again, the same technique applies for 2D footage as it does for graphics like we're overlaying here.
+ And let's go ahead and back to mono.
+And let's check out our next example.
+ So in this example, It's a bit more of a complex shot.
+ So let's say you want this graphic but you also want some CG helicopter to be composited in and maybe you want it to actually be mapped to the environment and whatnot.
+ And so, you know, you don't want to have this comp that's a bit more complex active in your timeline.
+ So you want to do a VFX pull and with this shot being kind of the final result we're going to be going for.
+ So in order to do a VFX pull, We're going to go to our original BRAW shot, and you can see we're in linear space now.
+ So what I've done on the color page is I've used a color space transform tool, which let's go ahead and just do that from scratch.
+ I'm going to grab our color space transform tool, drag it onto my node here, and I'm going to set my input color space to match the camera space, which is Blackmagic Design Wide Gamut Gen 4-5, and input gamma of.
+.
+.
+ There we go, Blackmagic Design Gen 5.
+ And then I'll set my output space to ACES APO and my gamma to linear.
+And so this linearizes the footage.
+ And this is what a visual effects house will expect to be delivered to them.
+Let's go back to timeline space.
+ So that's our first step.
+ And then in terms of doing the rest of this turnover, we're going to go to the Deliver page.
+ Now, one thing, oh, actually, before we do that, another thing I want to do when I turn over shots to a visual effects house is I actually want to remove the edge mask.
+ By default, the edge mask is going to be on.
+ And so when this renders, it would actually crop the camera image data.
+ So I actually want to remove that by going to the 3D menu, selecting edge blend, going to three dot menu, and then selecting none for edge blend.
+And so now the compositor is going to have access to the full image for their compositing work.
+So on the delivery page, we're going to do a custom export, and we're going to select EXR, RGB half, and then zip, which is just a lossless compression, which is going to make a slightly smaller file, still quite large, but slightly smaller file.
+ You can choose to render both eyes as a multi-view EXR, or you can do separate files so there's a separate left and a right.
+ Depends on what your VFX vendor wants to work with.
+ But the key here is that in this version of DaVinci Resolve, we now actually pass through the ILPD metadata into EXRs.
+ So as the visual effects house works on those shots and they deliver it back, as long as they maintain that metadata, that EXR sequence will cut back into this timeline and it maintains that camera ILPD metadata all the way through final delivery.
+And so I would add this to my render queue, render it out, which I've already done as a separate left and right sequence.
+Let's go back to Mono.
+ There we go.
+ And actually, I'm going to go ahead and open up Fusion.
+ So Fusion is a page within Resolve.
+ But we also have a standalone application, which is used by a lot of visual effects companies.
+ So it could be Fusion.
+ It could be any other compositing app that the visual effects house is using.
+ But this is the example we're going to use today.
+Okay, so this is a slightly more complex comp, and that's why we're doing it in this standalone application, probably at a visual effects house.
+ This is our left EXR, this is our right EXR, and then this set of nodes here in the center that I selected there is basically the same effect we had done in DaVinci Resolve.
+ The unique part is all these nodes up here, which is where we're doing all of our CG work and CG compositing.
+ I won't go into complete detail on all the ins and outs of this comp.
+ I'll just kind of highlight a couple things that are of interest.
+The first of which, if we let that process for a second, there we go.
+There we go.
+ We'll zoom in here.
+ Perfect.
+Okay.
+So the first of which, if we look at our left eye, what we get out of this is we have 180 degree field of view.
+ So it's actually really close to an HDRI image that we would use to light a CG render.
+So I'm going to actually use my Blackmagic RAW output, my VFX pool, in order to light the CG object.
+ And in order to do that, I'm just going to reduce my size down to 1K because it doesn't have to be as high resolution.
+ And then I have a series of nodes here that I am using basically to convert to lat-long space.
+ And then I'm just duplicating the image so that I have a more realistic image for the full 360 in order to light this helicopter based off of the image.
+ And so if we view this merge and we change our lighting scenario to the scene lights, we'll see that now we're being lit by the 360 image that I've fed into this.
+ Not only that, we're actually getting the reflections from the background image as well.
+So that's kind of a unique thing.
+ Let's see, other thing to note is this is a USD scene that we've created and we're actually rendering it out with a 90 degree field of view camera.
+ So we're not even rendering out a full 180 or 360 image because we know we're just having our subject in this area.
+ So we're kind of oversampling this region just for our CG render.
+ And then, just like my 2D graphic, I'm using my immersive patcher to map that into the proper space.
+ And then we're just merging that into our comp over our background.
+And so then that finally gets rendered out as a left and right EXR.
+ And that maintains the metadata so that when we go back into Resolve, we now have our final shot.
+We'll go to our edit page.
+ We'll re-enable that.
+ And our final shot, as you see, is still properly interpreted.
+ And so we can pan around and it will render with the proper ILPD metadata.
+All right, next scenario that's gonna be one probably of interest is dealing with camera shake.
+ So in this scenario here, we've got a bit of a shaky camera.
+Ideally, you wanna shoot things that are level and are completely stable.
+ So this shot in some scenarios might not be usable, but if you have to save it, there are some techniques that you can use inside of Fusion to actually make that happen.
+ So let's take a look at that.
+Okay, and actually I'm just going to go ahead and drag these nodes off and we'll just do it from scratch so we can talk about it step by step.
+ All right, so I'm actually going to resize this image down because in order to do the tracking, I actually don't need the full resolution image and this will actually process much quicker if I'm working with a lower resolution file.
+ So I'm going to go ahead and select keep frame aspect ratio and then I'm going to drop it down to just 1K.
+ So a nice small file to work with here.
+And then I'm gonna use the panomap tool which is one of the tools we talked about earlier and it's going to allow me to convert from immersive space to lat-long space.
+ And we're converting the lat-long space because that's the space that the spherical stabilizer is expecting.
+Currently that tool is only compatible with VR180 mapping equirectangular or half equirectangular or lat-long which is the full equirectangular.
+So then let's go back to the beginning of our comp and we're going to add our spherical stabilizer.
+ And you can find that tool under, let's see, insert tool, VR, and spherical stabilizer.
+All right, so we've got that.
+ I'm going to go ahead and increase my stabilized strength up to one because I really want to lock this down.
+ And then we're going to go ahead and track that forward for my current frame.
+And once it picks up speed, it should go pretty quick.
+ There we go.
+And so this is tracking that and it's processing as quickly as it is because we are resizing the image down to 1K.
+ So this is able to process out much quicker.
+So I'm going to go ahead and pause that because I've already done it.
+And in baking show fashion, we'll just reconnect these nodes back up.
+And then once basically we have our stabilization, We'll see our, let's do a quick before and after.
+ And we'll do that with a little split here and I'll load my before and then this is my after.
+ And so we can see that result, which is pretty convincingly stabilized.
+ Let's go back to our first frame.
+So quite a bit more stable.
+And so now that we've done that, you can actually remove the resize, which I've done here on this top comp, so we can see what our final result looks like.
+There we go.
+ And so it's quite a bit more stable than it was.
+ I'd probably still trim out the first couple seconds to really get to lock in, but that's a way to stabilize within DaVinci Resolve using the Fusion toolset.
+All right, next thing probably worth talking about is titles.
+ Let's say you wanted to do some custom titles.
+ As you're maybe familiar with from some of the earlier sessions, let's see, we're going to go ahead and disable that.
+You can use Resolve's titles, the Fusion titles, and they will automatically map to the proper space in depth and in lens space.
+ So if I drop on this title here, we'll see and we'll go ahead and reset this comp there we go and we'll enable this and if we zoom in nice and close there actually we'll just go and increase our size there we go The great thing about doing fusion titles directly on the edit page is that they map properly to lens space automatically based off of the underlying clip.
+ So as I adjust this position, it's properly mapped to that lens space automatically.
+ That works great for any of our prepackaged titles, but if you want to make your own title or even, let's say, a 3D title, that's what this last example is all about.
+ and so if we go ahead and isolate that this is our mock-up here our mountain adventure graphic and what we've done that's slightly different than the other cg shot we talked about is that we're actually using the inbuilt fusion 3d system and we're using a spherical camera so if we look at that We have two spherical cameras here, a left and a right.
+ And when it renders a left and right, we're actually getting a full left and right render, which we are then mapping into.
+ Let's see.
+ There we go.
+ Oops.
+ Pardon me.
+ Which we're mapping with our panomap tool into the proper lens space.
+And actually our spherical camera, you can set it to full out long or VR 180.
+ And what we have here is a VR 180 render happening for both perspectives.
+ There we go.
+And so, yeah, that will do it for that portion.
+ Let me just double check my notes here.
+Yeah, so that's the main stuff I wanted to go over today.
+ Obviously, inside of Resolve, you have a lot of tools available to you on the Fusion page to do the visual effects you need to do.
+ And then if you do need to turn over, utilizing that EXR workflow where the ILPD metadata is maintained, exporting from Resolve, going through your visual effects house and coming back to you will let you seamlessly integrate those visual effects into your final All right, that's it for me.
+ Thank you for your time.

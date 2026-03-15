@@ -1,0 +1,89 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+@source '../../../packages/ui/src';
+
+@theme {
+  --font-sans: Inter, sans-serif;
+}
+
+/* Override fumadocs variables for axel branding */
+:root {
+  --color-fd-primary: #C693F1;
+
+  /* Custom variables for axel pages (light mode) */
+  --foreground: #18181b;
+  --muted: #71717a;
+  --border: #e4e4e7;
+  --card: #fafafa;
+  --accent: #C693F1;
+  --accent-dark: rgba(198, 147, 241, 0.1);
+}
+
+.dark {
+  --color-fd-foreground: #fafafa;
+  --color-fd-muted-foreground: #a1a1aa;
+  --color-fd-card-foreground: #fafafa;
+  --color-fd-popover-foreground: #fafafa;
+  --color-fd-secondary-foreground: #fafafa;
+  --color-fd-accent-foreground: #fafafa;
+  --color-fd-primary: #C693F1;
+  --tw-prose-bold: #fafafa;
+  --tw-prose-body: #d4d4d8;
+  --tw-prose-headings: #fafafa;
+  --tw-prose-links: #e4e4e7;
+
+  /* Custom variables for axel pages (dark mode) */
+  --foreground: #fafafa;
+  --muted: #a1a1aa;
+  --border: #27272a;
+  --card: #18181b;
+  --accent: #C693F1;
+  --accent-dark: rgba(198, 147, 241, 0.15);
+}
+
+.dark .prose {
+  --tw-prose-bold: #fafafa;
+  --tw-prose-body: #d4d4d8;
+  --tw-prose-headings: #fafafa;
+  --tw-prose-links: #e4e4e7;
+}
+
+/* Direct element overrides for dark mode */
+html.dark strong,
+html.dark b,
+html.dark .prose strong,
+html.dark .prose b {
+  color: #fafafa !important;
+}
+
+html.dark a,
+html.dark .prose a {
+  color: #e4e4e7 !important;
+  text-decoration: none !important;
+}
+
+html.dark a:hover {
+  color: #fafafa !important;
+}
+
+/* Remove fumadocs default inline code styling */
+.prose code:not(pre code),
+code:not(pre code) {
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-weight: 500;
+}
+
+/* Ensure no styling on code blocks */
+pre,
+pre code,
+pre code span {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}

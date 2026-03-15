@@ -1,0 +1,2 @@
+[alias]
+axel-install = "install --path crates/cli --locked --force"

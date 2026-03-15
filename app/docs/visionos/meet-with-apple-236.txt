@@ -1,0 +1,301 @@
+Hello, everybody.
+ Welcome back.
+Round three.
+ Yeah.
+ Hello, and welcome back to our Spatial Audio Workshop.
+ I am Alex.
+ I am still the audio lead of the Apple Immersive Video team.
+Before we launch into the Fairlight portion with Dave, I'd like to share a couple of lessons that I've learned in the last few years of working on audio for Apple Immersive Video.
+First, design for the entire visual frame.
+This sort of seems obvious when you hear it, but remember that in immersive, your viewers only see part of your frame at a time.
+ They are free to explore the environment, shift their attention, and explore the entire world.
+So let's look at a brief scene here from another wildlife episode, as experienced when looking straight ahead in Apple Vision Pro.
+So we see there's a big rhino lumbering here onto a scale.
+ That's actually a scale about to enjoy a little snack.
+If you listen to my talk this morning, you know that likely we would want good foley for this to really sell this.
+ So probably some nice big footsteps on metal, a little bit of like of the lip smacking and the eating sort of that sort of stuff.
+Excuse me.
+ Cool, so we basically sound designed our scene from this point of view, but let's see now what happens when instead we look a little bit to the right for this exact same section.
+All the way on the right of the frame, there's like an adorable baby rhino right behind the wooden fence that's suckling on some milk.
+In 2D, this would just be a tiny detail all the way on the right of the frame.
+ In immersive, it's a whole separate mini story that the audience can focus on if they want to.
+So make sure you have sound design ready for all of these little pockets of interest your viewers may want to focus on.
+Because lack of spatial audio breaks immersion.
+ There's nothing worse than you exploring the frame, looking around, and suddenly you see something that really interests you and you don't hear anything for it.
+Cool.
+ So we focus on everything in the frame.
+ But with spatial audio, we can actually do even better.
+ Because remember, there's a whole sonic world, not just in front of you, but also behind you.
+But looking at this full frame right here, it's not immediately obvious where we'd visually place sounds here in order for them to play back behind us.
+So for spatial audio, we often work with a different representation of picture.
+ We take our lens space video right here and convert, or sometimes we also call it, unwrap it to equirectangular.
+Now we have a nice square frame, but we're not done.
+ We put that square into the middle of a two by one container with black on either side.
+And then you can superimpose a grid on this new frame.
+ Each grid line now is another 90% section, sorry, 90 degree section of your world.
+Let's visualize this on one of our dummy heads.
+ When you work in spatial audio, you're going to see these guys a lot.
+So when you go out from the center of the frame to the first set of grid lines, you basically get the front half of your sound field.
+ And then going further, all the way to the edge of the frame, gives you back the other half of your sound field.
+So with this knowledge now, we can easily place objects not just in front of us or even just to the sides, but fully behind us by just placing them on either of these black sides.
+For ambisonics, you can also use a heat map to get a visual confirmation of where your sounds are coming from in the sound field.
+ The warmer or redder an area is, the more sound is emanating from that area.
+Next, let's talk about headlocking.
+Most of your objects in Apple Spatial Audio will be what we call head-tracked, meaning they remain fixed in space relative to your environment.
+All right, here's our dummy head again.
+ As you turn your head, the sound stays anchored to a specific location.
+ This, of course, is how sound works in the real world, and it's what makes spatial audio work.
+However, occasionally you may want certain elements to not play back spatially around you, but instead just as regular stereo.
+ We call those elements headlocked.
+One way to visualize this is that the sounds are basically glued to and sticking to your ears and sort of moving with you.
+ But honestly, a much easier way to think about it is that it's just standard stereo, the standard that you've all known for forever.
+ meaning the left signal is fed directly into the left ear, right signal into the right ear.
+ There's no spatialization.
+ The sound doesn't change when you move your head, very normal stereo.
+So when would you use this? Headlocked stereo is great whenever you want certain sounds to not play inside your scene, but on top of it or outside of it.
+For example, it's great for voiceover and narration.
+ It's unlikely that you would want your voiceover to sound like a disembodied voice that's sort of floating right in front of the viewer and then just sort of hear like a ghost.
+Similar for score, a lot of times what can happen when you mix your score spatially, at first it sounds nice and full, but then your viewer turns the head and the music sort of just stays there and then stays there even a little bit more, which can sort of take you out of the experience unless you specifically want the music to emanate from, say, a radio in your scene or something like that.
+ All right, I could go on for hours about this, but I won't.
+ Instead, please welcome Dave LeBolt to show you how to do these concepts in Fairlight.
+ Thank you.
+We're going to be working with the DaVinci Fairlight page and talking about ASAF audio.
+ And one thing that's a good thing to think about up front is that Resolve is a series of pages that lets you go through the entire post-production process collaboratively.
+ So it's worth considering that we've got here something.
+ If I was just over on the edit page, for example, I could be working around in this edit timeline and playing something, and I could flap over the Fairlight page, and I've got all the audio sitting right there.
+ I can be sweetening and doing all the things with the audio in the same app, the same thing with any of the other pages.
+ So there's no exchange of data required in all those things.
+ So that's a good thing.
+ Let's go back to the top of what I'm going to do here.
+ Let's talk about how audio is set up in the page.
+ You've got all the standard tools that you'd expect to see in an NLE or DAW, and that is faders.
+ Let me make this mixer bigger for you so you can see it more clearly.
+ wider tracks, and here we can see our different tracks, faders, we can see panners, and that includes this panner over here that, you know, to give an example of what I mean, is a spatial panner.
+ I can move this around.
+ I can move the controls for that panner.
+ Because these are automated, they're locked, so I'll choose another thing to show that.
+ Let me go over here.
+So I can move my azimuth control to move left and right.
+ I can move my elevation control to move up and down and so forth.
+ All the things that you'd expect to be able to do to manipulate this in space.
+ And we can also choose to look at this as a Cartesian view as well.
+ So that's the panner.
+ We also have built-in EQ and dynamics.
+ Here's the equalizer.
+ In this case, I'm knocking off some high-end and low-end out of the sound.
+ And by the way, I will actually play sounds and not just talk at you, but I needed to take you through a little bit of what's here.
+ This built-in dynamics processor also.
+ Here is a compressor that we're applying to a VO and a gate and a limiter that are available.
+ So there's also bus routing.
+ and their AI-based effects.
+ And I'm not going to take you through every single thing that's in the mixer, but that gives you an idea of what's sitting here with the mixer.
+ So let's go over to how we can route the audio and monitor it.
+ The first thing I wanted to take you through is that we're working with an ASAF master bus, and that master bus is where everything’s output, in this case to a 7.
+1.
+4 speaker system here.
+ But normally when you're mixing with Resolve, you'll be mixing binaurally for Apple Vision Pro.
+ And that's what we can be looking at here.
+ What are we going to be listening to? Here’s our ASAF master bus.
+ I also have some other buses available that I'm mixing to here.
+ stereo and third-order ambisonics.
+ We can switch dynamically between any of these mix formats.
+ And over here is where I can choose, oh, I want to listen to it in binaural or stereo, or in this case, optimized for the speaker system.
+ And because this is all working with ambisonics and ASAF, the sound is naturally positioned and optimized for the environment that it's in.
+ If it's binaural, it's what's going to sound best in a spatial environment in your head, right, in your monitoring source.
+ If it's this speaker system, it's going to be optimized for the points that the speakers reside at.
+ Okay, that's the monitor system.
+ Let's talk about busing.
+ That's the routing of the audio between the different destinations.
+ Bussing is, you know, for those of you who are video-oriented people, busing is where you send the audio signals into a common position and then send it on to another bus or an actual ASAF scene that might be particular to the video area that you're working on, and then to the final output.
+ So we set up our buses in Fairlight by going to the Fairlight menu, and choosing the bus format over here.
+ And I'll zoom in on this just a little bit so you can see it better.
+ And now we can choose which type of format we want.
+ Here are the different things for the ambisonics for the Apple immersive third order scenes.
+ And you can set up your buses the way you want and then route to them.
+ So that's a little bit about an overview of how all that works.
+ Let me zoom back out here.
+ So let's just play finally some audio.
+ Over here, we're looking at this very small viewer.
+ Obviously, if we were working in a normal post environment, we'd have a separate monitor for that.
+ There's no reason we'd be limited to this and moving it around.
+ And I'm going to look at this, instead of looking at this view in this way, I'm going to look at it as a lat-long image.
+ Why am I doing that? Because I want to be able to sometimes accurately position and pan things using what I'm seeing in the viewer, and it can be difficult to work with fisheye to do that.
+ So let's take a look at what's going on over here.
+We just have a simple sequence with a First Order ambisonics recording of this train passing by.
+Now, that local first-order ambisonic microphone is picking up a really nice soundscape.
+ If you're listening to that binaurally, it sounds absolutely realistic.
+ And obviously, if you used higher-order ambisonics microphones, you'd get an even better sense of presence from the sound and of space.
+ And here is just a simple train alarm sound, you know, for the crossing.
+ And we’re using some of what’s available in the Apple ASAF Mix environment to be able to position that in an outdoor environment space.
+ And lastly, we have a reinforcing train sound effect that's at the bottom.
+So all these sounds combine together to create that soundscape.
+ And that's because a lot of times when you're doing audio post, you may need to be augmenting the local sound that's there or replace it entirely.
+ Sometimes you want things to sound hyper-real, hyped up.
+ Sometimes you need more bottom end on something.
+ Sometimes there are other sounds that are interfering with what you're working on.
+ So that's an idea of a simple sound sequence.
+ Let's move over to something that's more involved.
+ Here.
+.
+.
+ We're going to move to a spot where these hikers are moving along this trail.
+ Let's make this image large again.
+ I keep popping back here.
+ And when they're moving along the trail, we have all this bubbling water.
+Let me turn off this VO and music bed that I have on here for illustrative purposes.
+ Here we go.
+So in this bucolic scene, we have all these footsteps.
+ They're going off into the distance.
+ We have the water bubbling along beside us.
+ We see some boulders here.
+ We want to be able to make sure we've got the full presence of that stream.
+ And as a viewer, that's off to our right a bit.
+ But of course, it's coming into our left ears as well.
+ Here it's to the left and it's going to come into our right ear.
+ We have birds that are up in the canopy of the trees, and that's what we've played with here.
+ So if we go to the source files here, here are the river sounds individually.
+ There are first-order ambisonic sounds.
+And here's a more present, bolder kind of water.
+So when we have those sources, then we're dealing with something, when combined, that sounds like this.
+All right, let's go on to the birds.
+ These birds are up in the forest canopy.
+ This is just a stereo sound that I positioned.
+ I'm going to get this out of the way for the moment because it's not critical.
+If we go over to these birds and we look at the panner.
+It's positioned upwards.
+ That’s what we’re doing with ASAF and ambisonics.
+ We're just taking the stereo sound and placing it into the ambisonic sound field, and it sounds a lot more realistic in that sense, upper canopy of sound.
+ And that's combined with a first-order ambisonic sound that's playing here.
+ That sounds pretty immersive.
+ I'm hearing it here in this room.
+ That sounds great.
+ All right.
+ Now we're going to combine those two together, and we get more of a sense of space with the birds higher up.
+ Sorry, we got this guy plopping along here.
+ I think I want to turn this option on over here.
+ Stop and go to last position.
+ This is the audio person's favorite thing to do, which video people never want to do.
+ Okay.
+There we go.
+I feel like I could just hang out there all day.
+Now let's go on to the footsteps.
+ Here with these footsteps, we wanted to get a sense of them diminishing in space and eventually also getting duller because they're moving off into space.
+ And ASAF is helping with that, but we’re also using an EQ to take care of that task.
+ So here’s our panner.
+And here I've used a different view, not the spatial view, but the 3D view.
+ I'm going to move this guy around so we can see what it's looking at.
+ And because these footsteps are down at the ground, I position them down over there.
+And something is going on because this guy's dead.
+It's not normal.
+There we go.
+So that's an example of the pan move that I'm making.
+ And then I'm also fading them out over time.
+ And I think I was doing some EQ automation here.
+ Maybe that's not working.
+So it's fading down over time, so it sounds natural that way.
+ And now when we combine it all together, this is what we have.
+Okay.
+ The other thing that I have as part of this section is a music bed and a VO.
+ And like Alex was talking about before about head tracking and whether you want to do things that are headlocked, this is a good example of that.
+ Here we have a stereo score mix and a VO.
+ So if we played these.
+.
+.
+ This is what we get.
+ Notice as I turn my head, the voice is not changing its position.
+ It's headlocked to the center.
+ How do we get that headlocking to happen in the Fairlight page? All right, let's grab this guy.
+ I'm going to bring up this inspector.
+ And here is the ASAF object control.
+ I bust this voiceover to the main ASAF output.
+ That makes it an object.
+ And then I'm able to select the track and in the inspector say that I want it to be headlocked.
+ It's that simple.
+ And when I was saying, where am I going to position it? I'm positioning it slightly above and behind the head.
+ It could be right at the head point.
+ Over here, I've got this music bed, and it's got the same thing.
+ The headlock is turned on, and here's my pan for the music.
+ It's a little bit more spread out because it's stereo, but you can basically see what it's doing there.
+ So that's what we're doing with headlocking.
+ There's another thing I wanted to tell you about here, too, and it'd have to be set to binaural.
+ that's when head tracking will work.
+ So I'll turn this off before I play audio again, but if I go over to here, and now I say head tracking display, I can turn that on.
+ And when I do, I get this little head image over here.
+ And if I had, for example, AirPods Pros or AirPods on my head, I'd be able to turn my head and I'd get to see this image moving around.
+ I even made a little video of that working.
+ So let me just play that for you really quickly.
+ Let me just turn this guy off so we're not dealing with it any longer.
+ Put this guy away.
+ And go away from binaural, lest I make a mistake.
+Hopefully I'm in the right place there.
+ Let's see.
+ If I pop out of my timeline here, I should be able to get to that little movie.
+ And all I wanted to do is to show you the little head tracker moving around.
+ Here we go.
+So I'm not sure if that's clear to you guys watching this, but what this has to do with is that if I'm using some AirPods on my head, I can see what it's going to be.
+ I can hear what it's going to be like for somebody to be able to turn their head with Vision Pro and how the mix will change along with my headlocked objects and check my audio mix that way.
+ That's a pretty powerful feature.
+ All right.
+ Let's move this pack.
+The next thing I wanted to show you is a helicopter shot.
+ Wake up, please.
+Here we have this helicopter pass by, and it's kind of a strong soundscape.
+Sitting up at the top of the mountain waiting for that big old helicopter to come in.
+ Let's play this a little bit.
+That is a fun little pass-by there.
+ So what we've got going on is we have the main copter sound that is an immersive recording.
+ It is first-order ambisonics.
+ And by the way, a lot of these ambisonics recordings are placed on third-order ambisonic tracks.
+ And the reason I've done that is because while it would be incredible if all this was captured with third-order ambisonic microphones, in this particular case it wasn't.
+ So by placing this first-order sound on a third-order track, it actually sort of does sort of up-rezzing of it, in a sense, by having more precision about the placement of the sound.
+So that's what the main bed is of this copter, and you can hear it's got a lot of spacers.
+And then there's something that's missing to me, which is as the copter is really getting close to the pad, it just doesn't have a lot of oomph on the bottom end.
+ And a lot of sound designers will augment these types of sounds in order to give them more presence, maybe even a hyper-real presence.
+ So we put in this sound, which is actually synthesized.
+All right.
+ That sounds nice when it's put together with the copter.
+ The thing is, is that that copter is moving along.
+ How are we going to get it to track? And of course, we could be sitting with that panner and playing around with it for a long time in order to get that to happen.
+But there's a feature in Resolve.
+ DaVinci Resolve Fairlight, which is called IntelliTrack.
+ And AI IntelliTrack, it's kind of a magic feature.
+ So what we can do is I'll turn on these controls to show you what it's going to be doing.
+ We'll turn on the tracker controls.
+ I'm going to select the track, the sub-track.
+ There's a tracker.
+And what this is doing, the same kind of stuff you do in VFX and color, where you want.
+.
+.
+ I just want to pull up this panner.
+ It's the same type of thing where you want to be able to see.
+.
+.
+ some object tracked in order to create a matte or to change a color, whatever it is.
+ In this case, it's to do panning.
+ So I'll show you the result of what happens when I do this.
+ You click on azimuth and elevation, you select the track, you set an in and out point, and then you run the tracker.
+ But this is the result.
+If I plop this down and start with the view turned a little bit more this way, you'll see what it's doing.
+ Moving over to the left, eventually the elevation's changing and it's moving down.
+ Yeah, it's moving all the way down and parking.
+ So if I had to do these moves, I'd be really approximating because I'd be doing them one at a time.
+ I could manually grab this and place points, but because I was able to do this, I can automatically track it.
+ That's the power of the AI IntelliTrack, and that's what makes up this sound.
+ So if I now play all of the sounds together, this other one's just a supporting sound that's underneath it, Now this is what I have.
+The great thing about AI IntelliTrack is the tracker is AI-based, and if an object is occluded, if you had a car, for example, and it went behind a wall and came out the other side, it would actually track it.
+ And this just saves so much time for audio people when they have to do these complex pan moves, whether it's immersive or anything.
+ So that's the main thing I wanted to show you.
+ Let me also bring you over to how do you output the final result, and how do you set up the project in the first place? In order to get Apple Immersive Audio to be working, you have to be using DaVinci Resolve Studio, the paid-for version of Resolve, and you bring up your preferences, and there in the Video and Audio I.
+O.
+ panel, you are choosing your immersive choices at the bottom, and over here, That's where you enable Apple Spatial Audio.
+ That's how you create that in the first place.
+ You have to have that turned on.
+ And when you want to deliver the final results of this timeline and output it for use in Vision Pro or as a master file, we go to the Deliver page, which you saw Matt showing before.
+ And if we bring it over to.
+.
+.
+ This area here, there's Vision Pro Review as the first choice, but we could create a bundle.
+ That's our master file.
+ When we do that, you get your choices around what you're doing with audio, and you can see here's our master file in 32-bit and so forth, or you create the actual, just the master audio file that's sent to Apple.
+ So that's what I had to show you.
+ I hope it was useful, and thanks very much.

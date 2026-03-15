@@ -1,0 +1,1 @@
+/Users/ludovic/.config/barrel/agents/tech-doc-writer/AGENT.md

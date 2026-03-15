@@ -1,0 +1,21 @@
+{
+  "name": "axel-web-ui",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "dev:www": "turbo dev --filter=@axel/www",
+    "dev:docs": "turbo dev --filter=@axel/docs",
+    "dev:video": "pnpm --filter=@axel/launch-video dev",
+    "build": "turbo build",
+    "build:www": "turbo build --filter=@axel/www",
+    "build:docs": "turbo build --filter=@axel/docs",
+    "build:video": "pnpm --filter=@axel/launch-video build",
+    "lint": "turbo lint",
+    "clean": "turbo clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.4"
+  },
+  "packageManager": "pnpm@10.0.0"
+}

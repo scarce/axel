@@ -1,0 +1,157 @@
+---
+title: Quick Start
+description: Get started with axel CLI in minutes
+---
+
+# Quick Start
+
+Get up and running with axel in just a few minutes.
+
+## Part 1: Skills
+
+### Step 1: Import Your Skills
+
+Start by importing your existing skill files into axel's global directory:
+
+```bash
+axel skill import ./.claude/skills/web-developer
+```
+
+You can also import an entire directory of skills:
+
+```bash
+axel skill import ./skills/
+```
+
+Verify your imported skills:
+
+```bash
+axel skill ls
+```
+
+Skills are stored in `~/.config/axel/skills`, making them available across all your workspaces.
+
+<Callout type="info">
+**Experimental:** `axel bootstrap` can auto-discover skills across your machine, but we recommend manual import for more control.
+</Callout>
+
+### Step 2: Initialize a Workspace
+
+In an existing repository, initialize an axel workspace:
+
+```bash
+axel init
+```
+
+This creates a minimal `AXEL.md` in your project:
+
+```yaml title="AXEL.md"
+---
+workspace: my-project
+
+layouts:
+  panes:
+    - type: claude
+      skills:
+        - "*"
+
+  grids:
+    default:
+      type: tmux
+      claude:
+        col: 0
+        row: 0
+---
+
+# Project Documentation
+
+Add your project context here...
+```
+
+### Step 3: Launch Claude
+
+Launch the Claude pane to see your skills in action:
+
+```bash
+axel claude
+```
+
+axel creates symlinks from your centralized skills to Claude's expected location. This happens for each supported AI (Claude, Codex, OpenCode, Antigravity) - same skills, different destinations.
+
+When the session ends, axel cleans up the symlinks automatically. Your skills stay in one place, portable across all LLMs.
+
+## Part 2: Grid Layouts
+
+Now let's set up a proper workspace with tmux. Grid layouts define how your panes are arranged.
+
+### Step 4: Add a Grid Layout
+
+Update your manifest to include Claude on the left, and two custom panes stacked on the right:
+
+```yaml title="AXEL.md"
+---
+workspace: my-project
+
+layouts:
+  panes:
+    - type: claude
+      skills:
+        - "*"
+    - type: custom
+      name: shell
+    - type: custom
+      name: server
+      command: npm run dev
+
+  grids:
+    default:
+      type: tmux
+      claude:
+        col: 0
+        row: 0
+      shell:
+        col: 1
+        row: 0
+        color: yellow
+      server:
+        col: 1
+        row: 1
+        color: blue
+---
+
+# Project Documentation
+
+Add your project context here...
+```
+
+<Callout type="info">
+**Unique names:** Custom panes use `type: custom` with a unique `name` field. This name is how grids reference the pane. AI panes (claude, codex, etc.) have their name default to the type.
+</Callout>
+
+### Step 5: Launch the Workspace
+
+Start your full workspace:
+
+```bash
+axel
+```
+
+axel creates a tmux session named after your project, with all panes arranged according to your grid.
+
+<Callout type="tip">
+**Why tmux?** tmux sessions persist even when you close your terminal. If you accidentally close a window or disconnect, just run `axel` again to reattach. Your Claude conversation, running servers, and shell history are all preserved.
+</Callout>
+
+### Step 6: Killing a Workspace
+
+When you're done, kill the workspace to clean up skills and terminate the tmux session:
+
+```bash
+axel -k my-project
+```
+
+## Next Steps
+
+- Learn all available [CLI commands](/commands)
+- Explore the full [manifest file reference](/manifest-file)
+- Learn about [portable skills](/skills)

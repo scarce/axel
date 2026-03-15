@@ -1,0 +1,104 @@
+Well.
+ Hello everyone.
+ I'm Brandon Heaslip, I'm the director of solutions engineering at Colorfront.
+ I'm really excited to be here today.
+ We have a lot to share and even a few announcements, all centered on how Colorfront supports creating.
+ Working in Apple Immersive Video from dailies to mastering our goal is simple to help storytellers push the boundaries of what's possible.
+First up, I'll walk you through the powerful tools we built for filmmakers, now expanded and refined specifically for Apple Immersive Video, they're designed to meet the unique challenges and creative demands of this incredible new format.
+Next, we'll look at how our technology is shaped by over two decades of real world experience, across everything from traditional film and television to Apple immersive titles, helping top creators bring their stories to life with confidence.
+Then we'll look at performance at production scale, how we deliver the speed, the reliability and the The flexibility needed to handle rendering across a real world production.
+And finally, a new update that will take things just a little bit further.
+So let's take a closer look at the software powering these workflows.
+ Because when it comes to Apple Immersive, video creators don't just need tools, they need the right tools.
+ Purpose built, field tested, and designed to make the complex feel effortless.
+ All of our software runs natively on macOS, fully optimized for Apple Silicon.
+ Built to deliver top performance on systems like the Mac Studio Ultra.
+Let's start with our app onset dailies.
+ This is where the story begins in all filmmaking workflows, including Apple Immersive Video.
+ It's essential to view footage as it's meant to be seen, and to make that possible, you need dailies every day.
+ Teams need a fast, trusted way to review what was just captured.
+ Colorfront onset dailies delivers a streamlined, color accurate workflow.
+ So what you see on set is exactly what your audience will experience in Apple Vision Pro.
+Next up is transcoder, our platform for mastering and final delivery.
+ This is where everything comes together, whether it's Apple Immersive Video or high end formats like IMF and ProRes, transcoder gives creators the total confidence that every frame is delivered with absolute precision from the first color decision to the final export.
+ It's built to meet the highest industry standards of quality and performance.
+Both of these tools are built on colored fronts, industry leading color science and media processing powered by the Colorfront engine.
+ It's the same foundation trusted by the world's most demanding productions.
+ From Hollywood blockbusters to immersive originals, creators rely on our technology because it delivers with consistency and stunning visual fidelity.
+And it's not just powerful technology, it's award winning technology.
+ Colored fronts innovations have been honored with scientific and technical awards from both the Academy of Motion Picture Arts and Sciences and the Television Academy.
+ It's power.
+ It's a powerful validation of the work we've done and the work we will continue to do to support the world's top creators.
+It's trusted every day by Apple TV Studios and other major studios such as Disney and Sony Pictures, along with top post houses as like company three and Picture Shop.
+ They power the day to day workflows of the industry's most trusted teams.
+ And if you've seen severance, you've already seen both our tools in action.
+Our tools also support Apple's own content creation, powering immersive experiences with the highest quality workflows.
+ And this isn't some future vision.
+ It's happening right now.
+ If you've already seen the Apple Immersive title Metallica, you already know what I'm talking about.
+ And if you haven't really seen it yet, then you really should.
+That was the foundation.
+ Now let's show you how it all comes together.
+ Built for the way creators actually want to work.
+For over 15 years, we've been on the leading edge of dailies and mastering color workflows, including stereo and immersive, building intuitive tools that help storytellers bring their stories to life.
+ With Colorfront, the technology fades into the background so creators can focus less on the process and more on the storytelling.
+ But what do these tools actually look like, and how do they fit into a real world workflow? Here's a look at our application onset dailies and transcoder.
+ Everything is presented in a simple, intuitive layout, giving creators the tools they need for mastering and dailies right in one place.
+ It's designed to be powerful but not overwhelming, so the focus stays on where it belongs on the creative work.
+Here you can see many of the key tools from onset dailies.
+ We have full support for color workflows including Aces, CDL, custom Luts, and Colorfront engine pipelines.
+Real time color controls for precise adjustments.
+Waveform and analyzer.
+ Tools for technical validation.
+Volume metering for checking your sound sync and levels.
+Real time visual playback in the GUI and on the SDI monitor.
+ Out and every clip in a lab roll.
+ Available at a glance.
+ It's everything a creator needs in one simple interface.
+As you've learned this week, metadata is absolutely essential to Apple Immersive Video, and it's a critical part of our workflow.
+ Colorfront captures, displays, and carries forward rich metadata, preserving critical information from set all the way through post.
+ Every parameter from camera settings, color science, to immersive playback attributes travels with the media.
+ That means accuracy and consistency are built in.
+Well, here's a bit of a closer look.
+ Among all the metadata.
+ Notice the Proem data captured directly from the camera and unique to Apple Immersive Video.
+ It carries spatial and playback information, including what is needed for accurate projection in Apple Vision Pro.
+ By exposing and preserving this metadata, we ensure that every step of the workflow has the context of the shot.
+ With Apple Immersive Video, it's not just about the image on screen, it's about keeping the intelligence behind the image intact.
+Now let's take let's talk about what it takes to deliver at scale.
+We support two key outputs for Apple Immersive Video the AIV for instant playback in Apple Vision Pro.
+ It's fast, immersive, and perfect for immediate review and final delivery.
+ And the ProRes AIM for offline editorial workflows, giving creators what they need without slowing down the creative process.
+ And with distributed rendering, it's easy to create both fully optimized on Apple silicon.
+But here's what's really powerful about color Rendering doesn't have to happen on a single machine with distributed rendering, workflows scale seamlessly across multiple systems, whether that's 2 or 10.
+ It's exactly how many of our customers work, including Apple's own productions team.
+ And if you saw the dailies cart in the hands on area yesterday, you've already seen the cart in action.
+Rendering is often one of the slowest parts of the workflow.
+ Tying up a single machine for hours with Colorfront.
+ It's different.
+ It all starts with a render queue, where every job and every system work in sync.
+ Rendering is distributed across the network so productions can move faster, scale smarter, and stay in the creative flow.
+ What does that result in? Up to 300% faster performing performance.
+ Turning hours into minutes, a 70 minute lab rule might take over five hours to process on a single machine, but with four systems running in parallel, it's done in one hour and 15 minutes.
+ That kind of speed does more than just save time.
+ It drives the whole creative process forward.
+And one more thing going further, we're not just focused on speed, we're focused on quality.
+And today, we're excited to announce something new.
+ We're adding the main concept immersive encoding library to our platform.
+This brings even greater video quality and performance to Apple Immersive Video, giving creators the best possible output, backed by one of the most trusted names in encoding.
+ This technology is trusted by the industry across cinema and broadcast to deliver world class results.
+ Every time it's built right into our software, it's seamless, integrated and ready to go.
+ There are no extra steps, no added complexity.
+ At the core, efficiency, reliability and precision are built in from day one.
+You can review your pro ProRes Im bundle and encode it for distribution at the highest quality possible using transcoder with the same visual fidelity as the Apple TV app.
+ So whether you're reviewing dailies or delivering for the final master, you can move forward with confidence at every step.
+So that's everything we have to share with you today, from the tools to the workflow to a brand new way to deliver immersive content at scale, it's all built with one goal in mind empowering you, the creators.
+Oh, not done yet.
+ Almost there.
+ I paused there.
+ We're proud to be a part of the forefront of immersive storytelling, doing the hard work so you can stay focused on on the creative.
+ And we're excited to be partnering with you to bring the next generation of stories to life.
+ To learn more or get started, just reach out.
+ We've got immersive iCloud, or you can email us at immersive at and we will get back to you as soon as possible.
+ Thank you everybody.
+ Hope you enjoy the rest of the the show.

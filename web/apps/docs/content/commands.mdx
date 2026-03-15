@@ -1,0 +1,301 @@
+---
+title: CLI Commands
+description: Complete reference for all axel CLI commands
+---
+
+# CLI Commands
+
+Complete reference for all axel CLI commands and options.
+
+## Launching
+
+### axel
+
+Launch a workspace from the current directory. axel walks up the directory tree looking for an AXEL.md file and launches the configured session.
+
+```bash
+axel [SHELL]
+```
+
+**Options:**
+- `-m, --manifest-path <PATH>` - Path to AXEL.md (default: ./AXEL.md)
+- `-p, --profile <PROFILE>` - Terminal profile to use (default: "default")
+
+**Examples:**
+
+```bash
+# Launch full workspace from current directory
+axel
+
+# Launch a specific shell from the manifest
+axel claude
+
+# Launch Antigravity with skills
+axel antigravity
+
+# Launch with a specific profile
+axel -p focus
+
+# Launch from a custom manifest
+axel -m ./configs/dev.md
+```
+
+### axel -k, --kill
+
+Kill a running workspace session. Terminates all panes, closes the tmux session, and cleans up any skill symlinks that were created.
+
+```bash
+axel -k <workspace>
+```
+
+**Options:**
+- `--keep-skills` - Keep skill symlinks instead of cleaning them up
+
+**Examples:**
+
+```bash
+# Kill a running workspace
+axel -k my-project
+
+# Kill but keep skill files
+axel -k my-project --keep-skills
+```
+
+## Setup
+
+### axel init
+
+Initialize an axel workspace in the current directory. Creates an AXEL.md file with a basic configuration.
+
+```bash
+axel init
+```
+
+### axel bootstrap
+
+[Experimental] Scan your machine for existing skills and consolidate them using AI. We recommend using axel skill import for more control.
+
+```bash
+axel bootstrap
+```
+
+## Skill Commands
+
+Manage your portable skill files. See the [Skills](/skills) documentation for more details.
+
+### axel skill list
+
+List all available skills, both local (in current workspace) and global (in ~/.config/axel/skills).
+
+```bash
+axel skill list
+# or
+axel skill ls
+```
+
+### axel skill import
+
+Import a skill file or directory to the global skills directory. This makes the skill available across all your workspaces.
+
+```bash
+axel skill import <path>
+```
+
+**Examples:**
+
+```bash
+# Import a single skill
+axel skill import ./.claude/skills/web-developer
+
+# Import all skills from a directory
+axel skill import ./skills/
+```
+
+### axel skill new
+
+Create a new skill file. If no name is provided, you will be prompted.
+
+```bash
+axel skill new [name]
+```
+
+**Examples:**
+
+```bash
+# Create a new skill with name
+axel skill new code-reviewer
+
+# Create interactively
+axel skill new
+```
+
+### axel skill fork
+
+Copy a global skill to the current workspace's local skills directory. This creates a local copy you can customize.
+
+```bash
+axel skill fork <name>
+```
+
+### axel skill link
+
+Create a symlink from the current workspace to a global skill. Changes to the global skill will be reflected locally.
+
+```bash
+axel skill link <name>
+```
+
+### axel skill rm
+
+Remove a skill file.
+
+```bash
+axel skill rm <name>
+```
+
+## Session Commands
+
+Manage running workspace sessions.
+
+### axel session list
+
+List all running axel sessions (tmux sessions created by axel).
+
+```bash
+axel session list
+# or
+axel session ls
+```
+
+### axel session new
+
+Create a new workspace session. This is the primary way to launch panes and grids.
+
+```bash
+axel session new [PANE] [OPTIONS]
+```
+
+**Arguments:**
+- `PANE` - Pane name to launch (from AXEL.md panes section). If omitted, launches the full default grid.
+
+**Options:**
+- `--grid <GRID>` - Launch a specific grid layout instead of the default (cannot be used with PANE)
+- `--session-name <NAME>` - Name for the tmux session
+- `--pane-id <PANE_ID>` - Target tmux pane ID (for macOS app integration)
+- `--port <PORT>` - Port for the embedded event server
+- `--prompt <TEXT>` - Prompt text to send on startup
+- `-w, --worktree <BRANCH>` - Create/use git worktree for branch
+- `--tmux` - Create a tmux session for single pane launch (grids always use tmux)
+
+**Examples:**
+
+```bash
+# Launch full default grid
+axel session new
+
+# Launch single claude pane
+axel session new claude
+
+# Launch the "wide" grid layout
+axel session new --grid wide
+
+# Launch with a specific session name
+axel session new claude --session-name my-claude
+
+# Launch with git worktree
+axel session new claude --worktree feat/auth
+
+# macOS app integration mode
+axel session new claude --pane-id %5 --port 4320 --tmux
+```
+
+### axel session join
+
+Attach to a running session.
+
+```bash
+axel session join <name>
+```
+
+### axel session kill
+
+Kill a running session and clean up.
+
+```bash
+axel session kill <name>
+```
+
+## Layout Commands
+
+Inspect your workspace layout configuration.
+
+### axel layout ls
+
+List all panes and grids defined in your AXEL.md manifest. Outputs JSON by default, useful for tooling and debugging.
+
+```bash
+axel layout ls [--json] [-m <manifest>]
+```
+
+**Options:**
+- `--json` - Output as JSON (default)
+- `-m, --manifest-path <PATH>` - Path to AXEL.md
+
+**Example output:**
+
+```json
+{
+  "panes": [
+    {
+      "type": "claude",
+      "name": "Claude",
+      "color": "gray",
+      "is_ai": true
+    },
+    {
+      "type": "shell",
+      "name": "Shell",
+      "color": null,
+      "is_ai": false
+    }
+  ],
+  "grids": [
+    {
+      "name": "default",
+      "type": "tmux",
+      "pane_count": 2,
+      "cells": [
+        {
+          "pane_type": "claude",
+          "col": 0,
+          "row": 0,
+          "width": 50
+        },
+        {
+          "pane_type": "shell",
+          "col": 1,
+          "row": 0
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Other
+
+### axel --version
+
+Display the current version of axel.
+
+```bash
+axel --version
+```
+
+### axel --help
+
+Display help information and a list of all available commands.
+
+```bash
+axel --help
+```

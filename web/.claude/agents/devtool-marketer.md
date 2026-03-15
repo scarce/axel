@@ -1,0 +1,1 @@
+/Users/ludovic/.config/barrel/agents/devtool-marketer/AGENT.md

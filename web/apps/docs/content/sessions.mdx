@@ -1,0 +1,30 @@
+---
+title: Sessions
+description: Persistent tmux sessions, git worktrees, and parallel development workflows
+---
+
+# Sessions
+
+axel uses tmux to create persistent, reproducible workspaces. Combined with git worktrees, you can run multiple branches simultaneously—each with its own isolated environment.
+
+## Why tmux?
+
+**Sessions persist.** Close your terminal, disconnect from SSH, or accidentally quit—your workspace survives. Just run `axel` again to reattach.
+
+**Layouts are reproducible.** Define your pane arrangement once in YAML. Every time you launch, you get the exact same setup.
+
+## Session Commands
+
+- `axel session list` - List all running sessions
+- `axel session join <name>` - Attach to a session
+- `axel session kill [name]` - Kill a session
+
+## Git Worktrees
+
+Launch workspaces in isolated worktrees with the `-w` flag:
+
+```bash
+axel -w feat/auth
+```
+
+Each branch gets its own directory, its own tmux session, and its own Claude instance. No stashing, no context switching.

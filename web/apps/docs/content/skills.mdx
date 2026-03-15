@@ -1,0 +1,165 @@
+---
+title: Skills
+description: Portable AI skills that work across LLMs - write once, deploy anywhere
+---
+
+# Skills
+
+Write your prompts once, deploy them to any LLM. Skills are markdown files that axel automatically symlinks to each tool's expected location.
+
+## How Skills Work
+
+Each LLM tool expects skill files in different locations. Claude Code looks for `CLAUDE.md` or `.claude/skills/`, Codex uses `AGENTS.md`, and others have their own conventions.
+
+axel solves this by letting you store skills in a single location and automatically creating the appropriate symlinks when you launch an assistant via axel.
+
+## Skill Locations
+
+Skills can be stored in two locations:
+
+- **Local** - `./skills/` in your workspace
+- **Global** - `~/.config/axel/skills/` shared across workspaces
+
+Local skills take precedence. You can fork global skills to customize them per-project, or link them to keep them in sync.
+
+## Skill File Structure
+
+Skills are markdown files with optional YAML frontmatter:
+
+```md title="skills/rust-developer/SKILL.md"
+---
+name: rust-developer
+description: Expert Rust developer assistance
+---
+
+# Rust Developer
+
+You are an expert Rust developer.
+
+## Guidelines
+
+- Write idiomatic Rust code
+- Use proper error handling with Result and Option
+- Prefer zero-cost abstractions
+- Follow the Rust API guidelines
+```
+
+The directory name becomes the skill name. Use `axel skill list` to see all available skills.
+
+## Skill Commands
+
+### axel skill list
+
+List all available skills, both local and global. Shows skill name, location, and description.
+
+```bash
+axel skill list
+```
+
+### axel skill import
+
+Import a skill file or directory to the global skills directory. This is the recommended way to add existing skills to axel.
+
+```bash
+axel skill import ./.claude/skills/web-developer
+```
+
+### axel skill new
+
+Create a new skill. If no name is provided, you will be prompted.
+
+```bash
+axel skill new code-reviewer
+```
+
+### axel skill fork
+
+Copy a global skill to your local workspace. Use this when you need to customize a shared skill for this project.
+
+```bash
+axel skill fork rust-developer
+```
+
+### axel skill link
+
+Create a symlink from a global skill to your local workspace. Changes to the global skill will be reflected in this workspace.
+
+```bash
+axel skill link web-developer
+```
+
+### axel skill rm
+
+Remove a skill. If the skill exists in both locations, you'll be prompted to choose which one to remove.
+
+```bash
+axel skill rm old-skill
+```
+
+## Using Skills in Workspaces
+
+Reference skills in your `AXEL.md`:
+
+```yaml title="AXEL.md"
+---
+workspace: my-project
+
+layouts:
+  panes:
+    - type: claude
+      skills:
+        - rust-developer
+        - code-reviewer
+      model: opus
+
+    - type: codex
+      skills:
+        - rust-developer
+
+  grids:
+    default:
+      type: tmux
+      claude:
+        col: 0
+        row: 0
+      codex:
+        col: 1
+        row: 0
+---
+
+# Project Documentation
+
+Your project context goes here...
+```
+
+Use `"*"` to load all available skills:
+
+```yaml title="AXEL.md"
+---
+layouts:
+  panes:
+    - type: claude
+      skills:
+        - "*"
+---
+```
+
+When you launch an assistant via axel, it installs the skills to each tool's expected location and cleans them up when the session ends.
+
+## How Symlinks Work
+
+When you run `axel claude`, axel:
+
+1. Creates skill directories in `.claude/skills/` with symlinked SKILL.md files
+2. Creates a CLAUDE.md symlink pointing to AXEL.md for project context
+3. Launches Claude Code with your skills pre-loaded
+4. Cleans up the symlinks when the session ends
+
+When you run `axel codex`, axel:
+
+1. Creates skill directories in `.codex/skills/` with symlinked SKILL.md files
+2. Creates an AGENTS.md symlink pointing to AXEL.md for project context
+3. Launches Codex with your skills available via `/skills`
+4. Cleans up the symlinks when the session ends
+
+The same process applies for OpenCode (AGENTS.md), Antigravity, and other supported assistants—each gets skills installed in their expected location.
